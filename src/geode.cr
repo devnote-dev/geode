@@ -1,5 +1,8 @@
 require "cling"
 require "colorize"
+require "yaml"
+
+require "./package"
 
 Colorize.on_tty_only!
 
