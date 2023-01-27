@@ -2,7 +2,12 @@ name: geode
 version: 0.1.0
 
 authors:
-  - devnote-dev <inferno0745@gmail.com>
+  - Devonte W <https://github.com/devnote-dev>
+
+dependencies:
+  cling:
+    github: devnote-dev/cling
+    branch: main
 
 targets:
   geode:

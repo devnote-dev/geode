@@ -16,7 +16,7 @@ TODO: Write development instructions here
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/geode/fork>)
+1. Fork it (<https://github.com/devnote-dev/geode/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -24,4 +24,6 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [devnote-dev](https://github.com/your-github-user) - creator and maintainer
+- [Devonte W](https://github.com/devnote-dev) - creator and maintainer
+
+©️ 2023 devnote-dev
