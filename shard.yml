@@ -1,0 +1,13 @@
+name: geode
+version: 0.1.0
+
+authors:
+  - devnote-dev <inferno0745@gmail.com>
+
+targets:
+  geode:
+    main: src/geode.cr
+
+crystal: 1.7.0
+
+license: MIT
