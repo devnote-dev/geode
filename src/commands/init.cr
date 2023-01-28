@@ -15,7 +15,7 @@ module Geode::Commands
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      if File.exists?("./shard.yml") && !options.has?("force")
+      if File.exists?("shard.yml") && !options.has?("force")
         stderr.puts "#{"❖".colorize.red}  A shard.yml file already exists in this directory"
         stderr.puts "#{"»".colorize.red}  Run this command with the '#{"--force".colorize.light_magenta}' flag to overwrite"
         exit 1
@@ -29,10 +29,10 @@ module Geode::Commands
                     "creating the file as normal"
         write_shard name
       else
-        command = {% if flag?(:macos) %}"Cmd"{% else %}"Ctrl"{% end %}
-        char = {% if flag?(:macos) %}"Q"{% else %}"C"{% end %}
+        command = {% if flag?(:darwin) %}"Cmd"{% else %}"Ctrl"{% end %}
+        char = {% if flag?(:darwin) %}"Q"{% else %}"C"{% end %}
 
-        {% unless flag?(:windows) %}
+        {% unless flag?(:win32) %}
           Signal::INT.trap do
             stdout.puts "\n❖  Setup cancelled\n"
             exit 0
@@ -89,7 +89,7 @@ module Geode::Commands
       end
       description ||= "A short description of #{name}"
 
-      File.write("./shard.yml", <<-YAML)
+      File.write("shard.yml", <<-YAML)
       name: #{name}
       description: #{description}
 
