@@ -18,6 +18,7 @@ module Geode
 
       add_command Commands::Version.new
       add_command Commands::Init.new
+      add_command Commands::Install.new
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
