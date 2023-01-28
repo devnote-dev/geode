@@ -8,7 +8,22 @@ module Geode::Commands
       end
 
       if description = command.description
-        str << description << "\n\n"
+        group = [] of String
+        text = ""
+
+        description.split(' ').each do |word|
+          text += " " + word
+          if text.size >= 80
+            group << text
+            text = ""
+          end
+        end
+        group << text unless text.empty?
+
+        group.each do |line|
+          str << line.strip << '\n'
+        end
+        str << '\n'
       end
 
       unless command.usage.empty?
