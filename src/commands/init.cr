@@ -16,7 +16,7 @@ module Geode::Commands
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       if File.exists?("shard.yml") && !options.has?("force")
-        stderr.puts "#{"❖".colorize.red}  A shard.yml file already exists in this directory"
+        stderr.puts "#{"❖  Error".colorize.red}: a shard.yml file already exists in this directory"
         stderr.puts "#{"»".colorize.red}  Run this command with the '#{"--force".colorize.light_magenta}' flag to overwrite"
         exit 1
       end
@@ -25,7 +25,7 @@ module Geode::Commands
       if options.has? "skip"
         write_shard name
       elsif !STDIN.tty?
-        stderr.puts "#{"❖".colorize.red}  This console does not have interactive support, " \
+        stderr.puts "#{"❖  Error".colorize.red}: this console does not have interactive support, " \
                     "creating the file as normal"
         write_shard name
       else

@@ -25,7 +25,7 @@ module Geode::Commands
     end
 
     def on_unknown_arguments(args : Array(String))
-      stderr.puts %(#{"❖".colorize.red}  Unexpected argument#{"s" if args.size > 1} for this command:)
+      stderr.puts %(#{"❖  Error".colorize.red}: unexpected argument#{"s" if args.size > 1} for this command:)
       if args.size > 1
         stderr.puts %(#{"»".colorize.red}  #{args[..-2].join ", "} and #{args.last})
       else
@@ -33,12 +33,12 @@ module Geode::Commands
       end
 
       command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.light_magenta
-      stderr.puts "\nSee '#{command}' for more information"
+      stderr.puts "#{"»".colorize.red}  See '#{command}' for more information"
       exit 1
     end
 
     def on_unknown_options(options : Array(String))
-      stderr.puts %(#{"❖".colorize.red}  Unexpected option#{"s" if options.size > 1} for this command:)
+      stderr.puts %(#{"❖  Error".colorize.red}: Unexpected option#{"s" if options.size > 1} for this command:)
       if options.size > 1
         stderr.puts %(#{"»".colorize.red}  #{options[..-2].join ", "} and #{options.last})
       else
@@ -46,7 +46,7 @@ module Geode::Commands
       end
 
       command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.light_magenta
-      stderr.puts "\nSee '#{command}' for more information"
+      stderr.puts "#{"»".colorize.red}  See '#{command}' for more information"
       exit 1
     end
   end
