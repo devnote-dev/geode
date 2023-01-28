@@ -11,6 +11,14 @@ module Geode::Commands
         str << description << "\n\n"
       end
 
+      unless command.usage.empty?
+        str << "Usage".colorize.magenta << '\n'
+        command.usage.each do |use|
+          str << "»  " << use << '\n'
+        end
+        str << '\n'
+      end
+
       unless command.children.empty?
         str << "Commands".colorize.magenta << '\n'
         command.children.each do |name, cmd|
