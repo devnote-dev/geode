@@ -21,10 +21,12 @@ module Geode::Commands
 
       unless command.children.empty?
         str << "Commands".colorize.magenta << '\n'
+        max_size = command.children.keys.map(&.size).max + 4
         command.children.each do |name, cmd|
           str << "»  #{name}"
           if summary = cmd.summary
-            str << '\t' << summary
+            str << " " * (max_size - name.size)
+            str << summary
           end
           str << '\n'
         end
