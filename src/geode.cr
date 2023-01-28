@@ -17,6 +17,7 @@ module Geode
       @header = %(#{"❖  Geode".colorize.magenta}: #{"A Crystal Build Tool".colorize.light_magenta})
 
       add_command Commands::Version.new
+      add_command Commands::Init.new
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil

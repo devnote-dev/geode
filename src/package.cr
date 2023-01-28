@@ -3,6 +3,8 @@ module Geode
     include YAML::Serializable
     include YAML::Serializable::Unmapped
 
+    NAME_REGEX = /\A[a-z][a-z0-9_-]+\z/
+
     property name : String
     property description : String?
     property authors : Array(String)?
