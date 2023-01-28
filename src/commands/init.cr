@@ -4,8 +4,8 @@ module Geode::Commands
       @name = "init"
       @summary = "initializes a shard.yml file"
       @description = "Initializes a shard.yml file in the current directory. " \
-        "By default this command is interactive, but you can skip it by including the '--skip' flag. " \
-        "The command will fail if one already exists, unless you use the '--force' flag."
+                     "By default this command is interactive, but you can skip it by including the '--skip' flag. " \
+                     "The command will fail if one already exists, unless you use the '--force' flag."
 
       add_usage "geode init [-f|--force] [-s|--skip] [options]"
       add_usage "geode init --skip"
@@ -26,7 +26,7 @@ module Geode::Commands
         write_shard name
       elsif !STDIN.tty?
         stderr.puts "#{"❖".colorize.red}  This console does not have interactive support, " \
-          "creating the file as normal"
+                    "creating the file as normal"
         write_shard name
       else
         command = {% if flag?(:macos) %}"Cmd"{% else %}"Ctrl"{% end %}
