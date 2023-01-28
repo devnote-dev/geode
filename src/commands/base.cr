@@ -9,15 +9,7 @@ module Geode::Commands
     end
 
     def help_template : String
-      <<-TEXT
-      #{"❖  Geode".colorize.magenta}: #{"A Crystal Build Tool".colorize.light_magenta}
-
-      #{"Commands".colorize.magenta}
-      »  version    Sends version information about Geode
-
-      #{"Options".colorize.magenta}
-      »  -h, --help  sends help information
-      TEXT
+      Commands.format_command self
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool

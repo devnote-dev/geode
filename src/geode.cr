@@ -14,6 +14,7 @@ module Geode
   class CLI < Commands::BaseCommand
     def setup : Nil
       @name = "app"
+      @header = %(#{"❖  Geode".colorize.magenta}: #{"A Crystal Build Tool".colorize.light_magenta})
 
       add_command Commands::Version.new
     end
