@@ -34,7 +34,7 @@ module Geode::Commands
 
       command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.light_magenta
       stderr.puts "#{"»".colorize.red}  See '#{command}' for more information"
-      exit 1
+      system_exit
     end
 
     def on_unknown_options(options : Array(String))
@@ -47,7 +47,11 @@ module Geode::Commands
 
       command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.light_magenta
       stderr.puts "#{"»".colorize.red}  See '#{command}' for more information"
-      exit 1
+      system_exit
+    end
+
+    protected def system_exit : NoReturn
+      raise SystemExit.new
     end
   end
 end

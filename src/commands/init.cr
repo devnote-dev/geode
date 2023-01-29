@@ -18,7 +18,7 @@ module Geode::Commands
       if File.exists?("shard.yml") && !options.has?("force")
         stderr.puts "#{"❖  Error".colorize.red}: a shard.yml file already exists in this directory"
         stderr.puts "#{"»".colorize.red}  Run this command with the '#{"--force".colorize.light_magenta}' flag to overwrite"
-        exit 1
+        system_exit
       end
 
       name = Path[Dir.current].basename.downcase.underscore
@@ -35,7 +35,7 @@ module Geode::Commands
         {% unless flag?(:win32) %}
           Signal::INT.trap do
             stdout.puts "\n❖  Setup cancelled\n"
-            exit 0
+            system_exit
           end
         {% end %}
 

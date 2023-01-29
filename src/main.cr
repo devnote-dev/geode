@@ -1,4 +1,8 @@
 #!/usr/bin/crystal
 require "./geode"
 
-Geode::CLI.new.execute ARGV
+begin
+  Geode::CLI.new.execute ARGV
+rescue Geode::SystemExit
+  exit 1
+end

@@ -13,7 +13,7 @@ module Geode::Commands
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      super
+      super arguments, options
 
       nodev = options.has? "no-development"
       frozen = options.has? "frozen"
@@ -34,7 +34,7 @@ module Geode::Commands
       unless File.exists? "shard.yml"
         stderr.puts "#{"❖ Error".colorize.red}: shard.yml file not found"
         stderr.puts "#{"»".colorize.red}  Run '#{"geode init".colorize.light_magenta}' to create one"
-        exit 1
+        system_exit
       end
     end
   end
