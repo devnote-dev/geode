@@ -25,29 +25,53 @@ module Geode::Commands
     end
 
     def on_unknown_arguments(args : Array(String))
-      stderr.puts %(#{"❖  Error".colorize.red}: unexpected argument#{"s" if args.size > 1} for this command:)
-      if args.size > 1
-        stderr.puts %(#{"»".colorize.red}  #{args[..-2].join ", "} and #{args.last})
-      else
-        stderr.puts %(#{"»".colorize.red}  #{args.first})
-      end
+      format = if args.size > 1
+                 args[..-2].join(", ") + " and " + args.last
+               else
+                 args[0]
+               end
 
-      command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.light_magenta
-      stderr.puts "#{"»".colorize.red}  See '#{command}' for more information"
+      command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.magenta
+      error [
+        "Unexpected argument#{"s" if args.size > 1} for this command:",
+        format,
+        "See '#{command}' for more information",
+      ]
       system_exit
     end
 
     def on_unknown_options(options : Array(String))
-      stderr.puts %(#{"❖  Error".colorize.red}: Unexpected option#{"s" if options.size > 1} for this command:)
-      if options.size > 1
-        stderr.puts %(#{"»".colorize.red}  #{options[..-2].join ", "} and #{options.last})
-      else
-        stderr.puts %(#{"»".colorize.red}  #{options.first})
-      end
+      format = if options.size > 1
+                 options[..-2].join(", ") + " and " + options.last
+               else
+                 options[0]
+               end
 
-      command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.light_magenta
-      stderr.puts "#{"»".colorize.red}  See '#{command}' for more information"
+      command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.magenta
+      error [
+        "Unexpected option#{"s" if options.size > 1} for this command:",
+        format,
+        "See '#{command}' for more information",
+      ]
       system_exit
+    end
+
+    protected def warn(msg : String) : Nil
+      stdout.puts "#{"» Warning".colorize.yellow}: #{msg}"
+    end
+
+    protected def warn(args : Array(String)) : Nil
+      stdout.puts "#{"» Warning".colorize.yellow}: #{args[0]}"
+      args[1..].each { |arg| stdout.puts "#{"»".colorize.yellow}  #{arg}" }
+    end
+
+    protected def error(msg : String) : Nil
+      stderr.puts "#{"» Error".colorize.red}: #{msg}"
+    end
+
+    protected def error(args : Array(String)) : Nil
+      stderr.puts "#{"» Error".colorize.red}: #{args[0]}"
+      args[1..].each { |arg| stderr.puts "#{"»".colorize.red}  #{arg}" }
     end
 
     protected def system_exit : NoReturn

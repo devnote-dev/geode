@@ -26,15 +26,19 @@ module Geode::Commands
       flags << "no-development" if nodev
       flags << "frozen" if frozen
 
-      stdout.puts "#{"❖  Warning".colorize.yellow}: unnecessary flag#{"s" if nodev && frozen} specified:"
-      stdout.puts "#{"»".colorize.yellow}  production"
-      stdout.puts %(#{"»".colorize.yellow}    ↳ implies #{flags.join " and "})
+      warn [
+        "Unnecessary flag#{"s" if nodev && frozen} specified:",
+        "production",
+        %(  ↳ implies #{flags.join " and "}),
+      ]
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       return if File.exists? "shard.yml"
-      stderr.puts "#{"❖ Error".colorize.red}: shard.yml file not found"
-      stderr.puts "#{"»".colorize.red}  Run '#{"geode init".colorize.light_magenta}' to create one"
+      error [
+        "shard.yml file not found",
+        "Run '#{"geode init".colorize.magenta}' to create one",
+      ]
       system_exit
     end
   end
