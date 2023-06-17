@@ -25,64 +25,62 @@ module Geode::Commands
         system_exit
       end
 
-      name = Path[Dir.current].basename.downcase.underscore
-      if options.has? "skip"
-        write_shard name
-      elsif !STDIN.tty?
+      name = Path[Dir.current].basename.underscore
+      return write_shard name if options.has? "skip"
+
+      unless STDIN.tty?
         warn "This console does not have interactive support; creating the file as normal"
-        write_shard name
-      else
-        command = {% if flag?(:darwin) %}"Cmd"{% else %}"Ctrl"{% end %}
-        char = {% if flag?(:darwin) %}"Q"{% else %}"C"{% end %}
+        return write_shard name
+      end
 
-        {% unless flag?(:win32) %}
-          Signal::INT.trap do
-            stdout.puts "\n❖  Setup cancelled\n"
-            system_exit
-          end
-        {% end %}
+      command = {% if flag?(:darwin) %}"Cmd"{% else %}"Ctrl"{% end %}
+      char = {% if flag?(:darwin) %}"Q"{% else %}"C"{% end %}
 
-        stdout.puts <<-INTRO
+      Process.on_interrupt do
+        stdout.puts "\n❖  Setup cancelled\n"
+        exit 0
+      end
+
+      stdout.puts <<-INTRO
         ❖  Welcome to the #{"Geode interactive shard setup".colorize.magenta}!
         This setup will walk you through creating a new shard.yml file.
         If you want to skip this setup, exit and run '#{"geode init --skip".colorize.light_magenta}'
         Press '^#{char}' (#{command}+#{char}) to exit at any time.
         INTRO
-        stdout.puts
+      stdout.puts
 
-        prompt("name: (#{name}) ") do |input|
-          unless Package::NAME_REGEX.matches? input
-            raise "package name can only contain lowercase letters, numbers, dashes and underscores"
-          end
-          name = input
+      prompt("name: (#{name}) ") do |input|
+        unless Package::NAME_REGEX.matches? input
+          raise "package name can only contain lowercase letters, numbers, dashes and underscores"
         end
-
-        description = nil
-        prompt("description: ") do |input|
-          description = input
-        end
-
-        version = "0.1.0"
-        prompt("version: (0.1.0)") do |input|
-          # TODO: add validation for this
-          version = input
-        end
-
-        crystal = Crystal::VERSION
-        prompt("crystal: (#{crystal}) ") do |input|
-          # TODO: add validation for this too
-          crystal = input
-        end
-
-        license = "MIT"
-        prompt("license: (MIT) ") do |input|
-          # TODO: add validation for this as well...
-          license = input
-        end
-
-        stdout.puts
-        write_shard(name, description, version, crystal, license)
+        name = input
       end
+
+      description = nil
+      prompt("description: ") do |input|
+        description = input
+      end
+
+      version = "0.1.0"
+      prompt("version: (0.1.0) ") do |input|
+        # TODO: add validation for this
+        version = input
+      end
+
+      crystal = Crystal::VERSION
+      prompt("crystal: (#{crystal}) ") do |input|
+        # TODO: add validation for this too
+        crystal = input
+      end
+
+      license = "MIT"
+      prompt("license: (MIT) ") do |input|
+        # TODO: add validation for this as well...
+        license = input
+      end
+
+      stdout.puts
+      write_shard(name, description, version, crystal, license)
     end
 
     private def write_shard(name : String, description : String? = nil, version : String = "0.1.0",
