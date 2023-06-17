@@ -3,9 +3,11 @@ module Geode::Commands
     def setup : Nil
       @name = "init"
       @summary = "initializes a shard.yml file"
-      @description = "Initializes a shard.yml file in the current directory. " \
-                     "By default this command is interactive, but you can skip it by including the '--skip' flag. " \
-                     "The command will fail if one already exists unless you use the '--force' flag."
+      @description = <<-DESC
+        Initializes a shard.yml file in the current directory. By default this command is
+        interactive, but you can skip it by including the '--skip' flag. The command will
+        fail if one already exists unless you use the '--force' flag.
+        DESC
 
       add_usage "geode init [-f|--force] [-s|--skip] [options]"
       add_usage "geode init --skip"

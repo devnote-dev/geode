@@ -3,8 +3,10 @@ module Geode::Commands
     def setup : Nil
       @name = "install"
       @summary = "installs dependencies from shard.yml"
-      @description = "Installs dependencies from a shard.yml file. This includes development dependencies " \
-                     "unless you include the '--production' flag."
+      @description = <<-DESC
+        Installs dependencies from a shard.yml file. This includes development dependencies
+        unless you include the '--production' flag.
+        DESC
 
       add_usage "install [-D|--no-development] [--frozen] [--production] [--verbose]"
       add_option 'D', "no-development"
