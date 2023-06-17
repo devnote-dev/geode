@@ -9,6 +9,11 @@ dependencies:
     github: devnote-dev/cling
     branch: main
 
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 1.4.3
+
 targets:
   geode:
     main: src/main.cr
