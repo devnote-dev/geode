@@ -15,6 +15,10 @@ development_dependencies:
     github: crystal-ameba/ameba
     version: ~> 1.4.3
 
+  lucky_template:
+    github: luckyframework/lucky_template
+    version: ~> 0.1.0
+
 targets:
   geode:
     main: src/main.cr

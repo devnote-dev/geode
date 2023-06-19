@@ -18,7 +18,7 @@ module Geode
 
       add_command Commands::Version.new
       add_command Commands::Init.new
-      # add_command Commands::New.new
+      add_command Commands::New.new
       add_command Commands::Install.new
       # add_command Commands::Add.new
       # add_command Commands::Check.new

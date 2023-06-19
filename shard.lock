@@ -8,3 +8,7 @@ shards:
     git: https://github.com/devnote-dev/cling.git
     version: 3.0.0-dev+git.commit.01d398fcaa17d5309235aad4f6f8f0a2ad91af5d
 
+  lucky_template:
+    git: https://github.com/luckyframework/lucky_template.git
+    version: 0.1.0
+
