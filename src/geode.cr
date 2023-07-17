@@ -9,7 +9,14 @@ Colorize.on_tty_only!
 
 module Geode
   VERSION = "0.1.0"
-  BUILD   = "dev"
+
+  BUILD_DATE = {% if flag?(:win32) %}
+                 {{ `powershell.exe -NoProfile Get-Date -Format "yyyy-MM-dd"`.stringify.chomp }}
+               {% else %}
+                 {{ `date +%F`.stringify.chomp }}
+               {% end %}
+
+  BUILD_HASH = {{ `git rev-parse HEAD`.stringify[0...8] }}
 
   class CLI < Commands::BaseCommand
     def setup : Nil

@@ -9,7 +9,7 @@ module Geode::Commands
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      stdout.puts "Geode version #{Geode::VERSION} (#{Geode::BUILD})"
+      stdout.puts "geode version #{Geode::VERSION} [#{Geode::BUILD_HASH}] (#{Geode::BUILD_DATE})"
     end
   end
 end
