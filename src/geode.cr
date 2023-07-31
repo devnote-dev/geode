@@ -3,7 +3,7 @@ require "colorize"
 require "yaml"
 
 require "./commands/*"
-require "./package"
+require "./shard"
 
 Colorize.on_tty_only!
 

@@ -50,8 +50,8 @@ module Geode::Commands
       stdout.puts
 
       prompt("name: (#{name}) ") do |input|
-        unless Package::NAME_REGEX.matches? input
-          raise "package name can only contain lowercase letters, numbers, dashes and underscores"
+        unless Shard::NAME_REGEX.matches? input
+          raise "shard name can only contain lowercase letters, numbers, dashes and underscores"
         end
         name = input
       end
@@ -85,7 +85,7 @@ module Geode::Commands
 
     private def write_shard(name : String, description : String? = nil, version : String = "0.1.0",
                             crystal : String = Crystal::VERSION, license : String = "MIT") : Nil
-      unless Package::NAME_REGEX.matches? name
+      unless Shard::NAME_REGEX.matches? name
         name = "my_project"
       end
       description ||= "A short description of #{name}"
