@@ -21,7 +21,7 @@ module Geode
     property libraries : Hash(String, String)?
     property executables : Array(String)?
     property scripts : Hash(String, String | Hash(String, String))?
-    property targets : Hash(String, Hash(String, String))?
+    property targets : Hash(String, Hash(String, String)) = Hash(String, Hash(String, String)).new
 
     def self.load_local : self
       from_yaml File.read "shard.yml"
