@@ -37,10 +37,11 @@ module Geode::Commands
       unless command.arguments.empty?
         str << "Arguments".colorize.magenta << '\n'
         command.arguments.each do |name, argument|
-          str << "»  #{name}\t#{argument.description}" << '\n'
+          str << "»  #{name}\t#{argument.description}"
           str << " (required)" if argument.required?
           str << '\n'
         end
+        str << '\n'
       end
 
       str << "Options".colorize.magenta << '\n'
