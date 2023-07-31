@@ -17,7 +17,8 @@ module Geode
                  {{ `date +%F`.stringify.chomp }}
                {% end %}
 
-  BUILD_HASH = {{ `git rev-parse HEAD`.stringify[0...8] }}
+  BUILD_HASH  = {{ `git rev-parse HEAD`.stringify[0...8] }}
+  HOST_TRIPLE = {{ Crystal::DESCRIPTION.split("target:").last.strip }}
 
   class CLI < Commands::BaseCommand
     def setup : Nil
@@ -36,7 +37,7 @@ module Geode
       # add_command Commands::Remove.new
       # add_command Commands::List.new
       # add_command Commands::Info.new
-      # add_command Commands::Run.new
+      add_command Commands::Run.new
       # add_command Commands::Config.new
     end
 
