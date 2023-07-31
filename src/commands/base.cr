@@ -31,7 +31,7 @@ module Geode::Commands
                  args[0]
                end
 
-      command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.magenta
+      command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.bold
       error [
         "Unexpected argument#{"s" if args.size > 1} for this command:",
         format,
@@ -47,7 +47,7 @@ module Geode::Commands
                  options[0]
                end
 
-      command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.magenta
+      command = %(geode #{self.name == "app" ? "" : self.name + " "}--help).colorize.bold
       error [
         "Unexpected option#{"s" if options.size > 1} for this command:",
         format,
@@ -56,22 +56,26 @@ module Geode::Commands
       system_exit
     end
 
+    protected def success(msg : String) : Nil
+      stdout << "» Success".colorize.green << ": " << msg << '\n'
+    end
+
     protected def warn(msg : String) : Nil
-      stdout.puts "#{"» Warning".colorize.yellow}: #{msg}"
+      stdout << "» Warning".colorize.yellow << ": " << msg << '\n'
     end
 
     protected def warn(args : Array(String)) : Nil
-      stdout.puts "#{"» Warning".colorize.yellow}: #{args[0]}"
-      args[1..].each { |arg| stdout.puts "#{"»".colorize.yellow}  #{arg}" }
+      stdout << "» Warning".colorize.yellow << ": " << args[0] << '\n'
+      args[1..].each { |arg| stdout << "»  ".colorize.yellow << arg << '\n' }
     end
 
     protected def error(msg : String) : Nil
-      stderr.puts "#{"» Error".colorize.red}: #{msg}"
+      stderr << "» Error".colorize.red << ": " << msg << '\n'
     end
 
     protected def error(args : Array(String)) : Nil
-      stderr.puts "#{"» Error".colorize.red}: #{args[0]}"
-      args[1..].each { |arg| stderr.puts "#{"»".colorize.red}  #{arg}" }
+      stderr << "» Error".colorize.red << ": " << args[0] << '\n'
+      args[1..].each { |arg| stderr << "»  ".colorize.red << arg << '\n' }
     end
 
     protected def system_exit : NoReturn

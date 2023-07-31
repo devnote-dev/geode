@@ -37,7 +37,7 @@ module Geode::Commands
       return if File.exists? "shard.yml"
       error [
         "shard.yml file not found",
-        "Run '#{"geode init".colorize.magenta}' to create one",
+        "Run '#{"geode init".colorize.bold}' to create one",
       ]
       system_exit
     end

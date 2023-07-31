@@ -1,5 +1,8 @@
 module Geode::Commands
   class Init < BaseCommand
+    private COMMAND = {% if flag?(:darwin) %}"Cmd"{% else %}"Ctrl"{% end %}
+    private CHAR    = {% if flag?(:darwin) %}"Q"{% else %}"C"{% end %}
+
     def setup : Nil
       @name = "init"
       @summary = "initializes a shard.yml file"
@@ -20,7 +23,7 @@ module Geode::Commands
       if File.exists?("shard.yml") && !options.has?("force")
         error [
           "A shard.yml file already exists in this directory",
-          "Run this command with the '#{"--force".colorize.magenta}' flag to overwrite",
+          "Run this command with the '#{"--force".colorize.bold}' flag to overwrite",
         ]
         system_exit
       end
@@ -29,23 +32,21 @@ module Geode::Commands
       return write_shard name if options.has? "skip"
 
       unless STDIN.tty?
-        warn "This console does not have interactive support; creating the file as normal"
+        # FIXME: might need to add logic for dumb terminals vs pipes
+        # warn "This console does not have interactive support; creating the file as normal"
         return write_shard name
       end
 
-      command = {% if flag?(:darwin) %}"Cmd"{% else %}"Ctrl"{% end %}
-      char = {% if flag?(:darwin) %}"Q"{% else %}"C"{% end %}
-
       Process.on_interrupt do
-        stdout.puts "\n❖  Setup cancelled\n"
+        stdout.puts "\nSetup cancelled\n"
         exit 0
       end
 
       stdout.puts <<-INTRO
-        ❖  Welcome to the #{"Geode interactive shard setup".colorize.magenta}!
+        Welcome to the #{"Geode interactive shard setup".colorize.magenta}!
         This setup will walk you through creating a new shard.yml file.
-        If you want to skip this setup, exit and run '#{"geode init --skip".colorize.light_magenta}'
-        Press '^#{char}' (#{command}+#{char}) to exit at any time.
+        If you want to skip this setup, exit and run '#{"geode init --skip".colorize.bold}'
+        Press '^#{CHAR}' (#{COMMAND} + #{CHAR}) to exit at any time.
         INTRO
       stdout.puts
 
@@ -91,25 +92,25 @@ module Geode::Commands
       description ||= "A short description of #{name}"
 
       File.write("shard.yml", <<-YAML)
-      name: #{name}
-      description: #{description}
+        name: #{name}
+        description: #{description}
 
-      version: #{version}
+        version: #{version}
 
-      dependencies:
-        kemal:
-          github: kemalcr/kemal
+        dependencies:
+          kemal:
+            github: kemalcr/kemal
 
-      development_dependencies:
-        webmock:
-          github: manastech/webmock.cr
+        development_dependencies:
+          webmock:
+            github: manastech/webmock.cr
 
-      crystal: #{crystal}
+        crystal: #{crystal}
 
-      license: #{license}
-      YAML
+        license: #{license}
+        YAML
 
-      stdout.puts "#{"❖".colorize.green}  Created shard.yml"
+      success "Created shard.yml"
     end
 
     private def prompt(message : String, & : String ->) : Nil
