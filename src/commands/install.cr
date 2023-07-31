@@ -35,10 +35,7 @@ module Geode::Commands
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       return if File.exists? "shard.yml"
-      error [
-        "shard.yml file not found",
-        "Run '#{"geode init".colorize.bold}' to create one",
-      ]
+      error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
       system_exit
     end
   end

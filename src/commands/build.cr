@@ -8,7 +8,7 @@ module Geode::Commands
         specified, the first target defined in the shard.yml file is chosen.
         DESC
 
-      add_usage "build [-C|--no-check] [targets...]"
+      add_usage "build [targets...]"
       add_argument "targets", description: "the targets to build", multiple: true
     end
 
@@ -44,7 +44,7 @@ module Geode::Commands
             next
           end
 
-          stdout.puts "Building: #{name}"
+          stdout.puts "» Building: #{name}"
           count += 1
 
           spawn do
@@ -61,19 +61,13 @@ module Geode::Commands
           system_exit
         end
 
-        stdout.puts "Building: #{name}"
+        stdout.puts "» Building: #{name}"
         build name, target["main"]
       end
     rescue File::NotFoundError
-      error [
-        "A shard.yml file was not found",
-        "Run '#{"geode init".colorize.bold}' to initialize one",
-      ]
+      error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
     rescue ex : YAML::ParseException
-      error [
-        "Failed to parse shard.yml contents:",
-        ex.to_s,
-      ]
+      error ["Failed to parse shard.yml contents:", ex.to_s]
     end
 
     # TODO: include target args

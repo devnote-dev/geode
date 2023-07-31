@@ -12,7 +12,7 @@ module Geode::Commands
         fail if one already exists unless you use the '--force' flag.
         DESC
 
-      add_usage "geode init [-f|--force] [-s|--skip] [options]"
+      add_usage "geode init [-f|--force] [-s|--skip]"
       add_usage "geode init --skip"
       add_usage "geode init -fs"
       add_option 'f', "force", description: "force create the shard.yml file"
@@ -23,7 +23,7 @@ module Geode::Commands
       if File.exists?("shard.yml") && !options.has?("force")
         error [
           "A shard.yml file already exists in this directory",
-          "Run this command with the '#{"--force".colorize.bold}' flag to overwrite",
+          "Run this command with the '--force' flag to overwrite",
         ]
         system_exit
       end
@@ -45,7 +45,7 @@ module Geode::Commands
       stdout.puts <<-INTRO
         Welcome to the #{"Geode interactive shard setup".colorize.magenta}!
         This setup will walk you through creating a new shard.yml file.
-        If you want to skip this setup, exit and run '#{"geode init --skip".colorize.bold}'
+        If you want to skip this setup, exit and run 'geode init --skip'.
         Press '^#{CHAR}' (#{COMMAND} + #{CHAR}) to exit at any time.
         INTRO
       stdout.puts
@@ -102,8 +102,9 @@ module Geode::Commands
             github: kemalcr/kemal
 
         development_dependencies:
-          webmock:
-            github: manastech/webmock.cr
+          ameba:
+            github: crystal-ameba/ameba
+            version: ~> 1.4.0
 
         crystal: #{crystal}
 

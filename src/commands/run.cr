@@ -21,6 +21,7 @@ module Geode::Commands
         • arm-linux-gnueabihf
         • i386-linux-gnu
         • i386-linux-musl
+        • wasm32-unknown-wasi
         • x86_64-darwin
         • x86_64-freebsd
         • x86_64-openbsd
@@ -29,7 +30,6 @@ module Geode::Commands
         • x86_64-unknown-dragonfly
         • x86_64-unknown-netbsd
         • x86_64-windows-msvc
-        • wasm32-unknown-wasi
         DESC
 
       add_usage "run [--target <name>] <script>"
@@ -63,7 +63,7 @@ module Geode::Commands
         if status.success?
           success "Completed in #{taken.milliseconds}ms"
         else
-          error "Script '#{name}' failed:"
+          error "Script '#{name}' failed (#{taken.milliseconds}ms):"
           stderr.puts err
         end
       else
@@ -106,20 +106,14 @@ module Geode::Commands
         if status.success?
           success "Completed in #{taken.milliseconds}ms"
         else
-          error "Script '#{name}' failed:"
+          error "Script '#{name}' failed (#{taken.milliseconds}ms):"
           stderr.puts err
         end
       end
     rescue File::NotFoundError
-      error [
-        "A shard.yml file was not found",
-        "Run '#{"geode init".colorize.bold}' to initialize one",
-      ]
+      error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
     rescue ex : YAML::ParseException
-      error [
-        "Failed to parse shard.yml contents:",
-        ex.to_s,
-      ]
+      error ["Failed to parse shard.yml contents:", ex.to_s]
     end
   end
 end
