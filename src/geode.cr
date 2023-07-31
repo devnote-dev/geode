@@ -1,4 +1,5 @@
 require "cling"
+require "cling/ext"
 require "colorize"
 require "yaml"
 
@@ -30,7 +31,7 @@ module Geode
       # add_command Commands::Add.new
       # add_command Commands::Check.new
       # add_command Commands::Update.new
-      # add_command Commands::Build.new
+      add_command Commands::Build.new
       # add_command Commands::Vendor.new
       # add_command Commands::Remove.new
       # add_command Commands::List.new
