@@ -4,7 +4,7 @@ module Geode::Commands
       if header = command.header
         str << header << "\n\n"
       else
-        str << "❖  Command".colorize.magenta << ": " << command.name << '\n'
+        str << "Command".colorize.magenta << ": " << command.name << '\n'
       end
 
       if description = command.description
