@@ -110,6 +110,16 @@ module Geode::Commands
           stderr.puts err
         end
       end
+    rescue File::NotFoundError
+      error [
+        "A shard.yml file was not found",
+        "Run '#{"geode init".colorize.bold}' to initialize one",
+      ]
+    rescue ex : YAML::ParseException
+      error [
+        "Failed to parse shard.yml contents:",
+        ex.to_s,
+      ]
     end
   end
 end
