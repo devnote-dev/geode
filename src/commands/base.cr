@@ -24,6 +24,39 @@ module Geode::Commands
       end
     end
 
+    def on_error(ex : Exception)
+      if ex.is_a? Cling::CommandError
+        error [ex.to_s, "See '#{"geode --help".colorize.bold}' for more information"]
+        return
+      elsif ex.is_a? Cling::ExecutionError
+        on_invalid_option ex.to_s
+        return
+      end
+
+      error [
+        "Unexpected exception:",
+        ex.to_s,
+        "Please report this on the Iris GitHub issues:",
+        "https://github.com/PteroPackages/Iris/issues",
+      ]
+    end
+
+    def on_missing_arguments(args : Array(String))
+      format = if args.size > 1
+                 args[..-2].join(", ") + " and " + args.last
+               else
+                 args[0]
+               end
+
+      command = "geode #{self.name} --help".colorize.bold
+      error [
+        "Missing required argument#{"s" if args.size > 1} for this command:",
+        format,
+        "See '#{command}' for more information",
+      ]
+      system_exit
+    end
+
     def on_unknown_arguments(args : Array(String))
       format = if args.size > 1
                  args[..-2].join(", ") + " and " + args.last
