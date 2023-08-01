@@ -36,8 +36,8 @@ module Geode::Commands
       error [
         "Unexpected exception:",
         ex.to_s,
-        "Please report this on the Iris GitHub issues:",
-        "https://github.com/PteroPackages/Iris/issues",
+        "Please report this on the Geode GitHub issues:",
+        "https://github.com/devnote-dev/geode/issues",
       ]
     end
 
