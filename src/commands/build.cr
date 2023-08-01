@@ -75,13 +75,33 @@ module Geode::Commands
       err = IO::Memory.new
       start = Time.monotonic
       status = Process.run("crystal", ["build", "-o", (Path["bin"] / name).to_s, main], error: err)
-      taken = Time.monotonic - start
+      taken = format(Time.monotonic - start)
 
       if status.success?
-        success "Target '#{name}' built in #{taken.milliseconds}ms"
+        success "Target '#{name}' built in #{taken}"
       else
-        error "Target '#{name}' failed (#{taken.milliseconds}):"
+        error "Target '#{name}' failed (#{taken}):"
         stderr.puts err
+      end
+    end
+
+    private def format(time : Time::Span) : String
+      String.build do |io|
+        unless time.hours.zero?
+          io << time.hours << 'h'
+        end
+
+        unless time.minutes.zero?
+          io << time.minutes << 'm' << ' '
+        end
+
+        unless time.seconds.zero?
+          io << time.seconds << 's' << ' '
+        end
+
+        unless time.milliseconds.zero?
+          io << time.milliseconds << "ms"
+        end
       end
     end
   end
