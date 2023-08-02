@@ -69,10 +69,8 @@ module Geode::Commands
       else
         target = options.get("target").as_s
         unless sub = script[target]?
-          if {{ flag?(:win32) }} && script.has_key? "windows"
-            sub = script["windows"]
-          elsif script.has_key? "linux"
-            sub = script["linux"]
+          if script.has_key? {{ flag?(:win32) ? "windows" : "linux" }}
+            sub = script[{{ flag?(:win32) ? "windows" : "linux" }}]
           else
             error "No script target for triple: #{target}"
             system_exit
