@@ -5,11 +5,16 @@ module Geode::Commands
       @summary = "builds one or more targets from shard.yml"
       @description = <<-DESC
         Builds one or more specified targets from a shard.yml file. If no targets are
-        specified, the first target defined in the shard.yml file is chosen.
+        specified, the first target defined in the shard.yml file is chosen. The output
+        of the build from the compiler can be logged by specifying the '--pipe' flag.
+        You should avoid using this flag if you are building multiple targets as they
+        are built concurrently, meaning that the output of the targets will be logged at
+        the same time.
         DESC
 
       add_usage "build [targets...]"
       add_argument "targets", description: "the targets to build", multiple: true
+      add_option 'p', "pipe", description: "pipes the build output"
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -28,11 +33,14 @@ module Geode::Commands
         end
       end
 
+      pipe = options.has? "pipe"
       if targets = arguments.get?("targets").try &.as_set
         known, unknown = targets.partition { |t| shard.targets.has_key? t }
         unless unknown.empty?
           warn ["Skipping unknown targets:", unknown.join(", ")]
         end
+
+        warn "Output piping is not recommended for multiple targets" if pipe && known.size > 1
 
         wait = Channel(Nil).new
         count = 0
@@ -48,7 +56,7 @@ module Geode::Commands
           count += 1
 
           spawn do
-            build name, target["main"]
+            build name, target["main"], pipe
             wait.send nil
           end
         end
@@ -62,7 +70,7 @@ module Geode::Commands
         end
 
         stdout.puts "» Building: #{name}"
-        build name, target["main"]
+        build name, target["main"], pipe
       end
     rescue File::NotFoundError
       error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
@@ -71,10 +79,20 @@ module Geode::Commands
     end
 
     # TODO: include target args
-    private def build(name : String, main : String) : Nil
+    private def build(name : String, main : String, pipe : Bool) : Nil
       err = IO::Memory.new
       start = Time.monotonic
-      status = Process.run("crystal", ["build", "-o", (Path["bin"] / name).to_s, main], error: err)
+      status = Process.run(
+        "crystal",
+        [
+          "build",
+          "-o",
+          (Path["bin"] / name).to_s,
+          main,
+        ],
+        output: pipe ? stdout : Process::Redirect::Close,
+        error: err
+      )
       taken = format(Time.monotonic - start)
 
       if status.success?
