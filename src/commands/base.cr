@@ -25,20 +25,21 @@ module Geode::Commands
     end
 
     def on_error(ex : Exception)
-      if ex.is_a? Cling::CommandError
+      case ex
+      when Cling::CommandError
         error [ex.to_s, "See '#{"geode --help".colorize.bold}' for more information"]
-        return
-      elsif ex.is_a? Cling::ExecutionError
+      when Cling::ExecutionError
         on_invalid_option ex.to_s
-        return
+      when SystemExit
+        raise ex
+      else
+        error [
+          "Unexpected exception:",
+          ex.to_s,
+          "Please report this on the Geode GitHub issues:",
+          "https://github.com/devnote-dev/geode/issues",
+        ]
       end
-
-      error [
-        "Unexpected exception:",
-        ex.to_s,
-        "Please report this on the Geode GitHub issues:",
-        "https://github.com/devnote-dev/geode/issues",
-      ]
     end
 
     def on_missing_arguments(args : Array(String))
@@ -70,6 +71,12 @@ module Geode::Commands
         format,
         "See '#{command}' for more information",
       ]
+      system_exit
+    end
+
+    def on_invalid_option(message : String)
+      command = "geode #{self.name} --help".colorize.bold
+      error [message, "See '#{command}' for more information"]
       system_exit
     end
 
