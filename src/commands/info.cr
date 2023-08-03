@@ -62,7 +62,7 @@ module Geode::Commands
 
             case fields
             when .has_key? "path"       then stdout << " (" << fields["path"] << ')'
-            when .has_key? "git"        then stdout << " (git)"
+            when .has_key? "git"        then stdout << " (" << fields["git"] << ')'
             when .has_key? "github"     then stdout << " (github)"
             when .has_key? "gitlab"     then stdout << " (gitlab)"
             when .has_key? "bitbucket"  then stdout << " (bitbucket)"
