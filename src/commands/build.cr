@@ -12,7 +12,7 @@ module Geode::Commands
         the same time.
         DESC
 
-      add_usage "build [targets...]"
+      add_usage "build [-p|--pipe] [targets...]"
       add_argument "targets", description: "the targets to build", multiple: true
       add_option 'p', "pipe", description: "pipes the build output"
     end
