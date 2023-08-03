@@ -45,73 +45,66 @@ module Geode::Commands
       end
 
       name = arguments.get("script").as_s
-      unless script = shard.scripts[name]?
+      keys = shard.scripts.keys.select &.starts_with? name
+      if keys.empty?
         error "Unknown script '#{name}'"
         system_exit
       end
 
-      if script.is_a? String
-        stdout << "» Running script: "
-        stdout << '\n' if script.lines.size > 1
-        stdout << script.colorize.light_gray << "\n\n"
-
-        err = IO::Memory.new
-        start = Time.monotonic
-        status = Process.run(script, shell: true, output: stdout, error: err)
-        taken = Time.monotonic - start
-
-        if status.success?
-          success "Completed in #{taken.milliseconds}ms"
+      target = options.get("target").as_s
+      if keys.any? &.includes? '@'
+        if key = keys.find &.ends_with? "@#{target}"
+          run_script shard.scripts[key]
+        elsif key = keys.find &.ends_with? {{ flag?(:win32) ? "@windows" : "@linux" }}
+          run_script shard.scripts[key]
+        elsif keys.includes? name
+          run_script shard.scripts[name]
         else
-          error "Script '#{name}' failed (#{taken.milliseconds}ms):"
-          stderr.puts err
+          error "No script target for triple: #{target}"
+          system_exit
         end
       else
-        target = options.get("target").as_s
-        unless sub = script[target]?
-          if script.has_key? {{ flag?(:win32) ? "windows" : "linux" }}
-            sub = script[{{ flag?(:win32) ? "windows" : "linux" }}]
-          else
-            error "No script target for triple: #{target}"
-            system_exit
-          end
-        end
-
-        stdout << "» Running script: "
-        stdout << '\n' if sub.lines.size > 1
-        stdout << sub.colorize.light_gray << "\n\n"
-
-        err = IO::Memory.new
-        start = Time.monotonic
-
-        {% begin %}
-          {% if flag?(:win32) %}begin{% end %}
-            status = Process.run(sub, shell: true, output: stdout, error: err)
-            taken = Time.monotonic - start
-          {% if flag?(:win32) %}
-            rescue ex : File::NotFoundError
-              error [
-                "Failed to start process for script:",
-                ex.to_s,
-                "If you are using command prompt builtins or extensions,",
-                "make sure the script is prefixed with 'cmd.exe /C'",
-              ]
-              system_exit
-            end
-          {% end %}
-        {% end %}
-
-        if status.success?
-          success "Completed in #{taken.milliseconds}ms"
-        else
-          error "Script '#{name}' failed (#{taken.milliseconds}ms):"
-          stderr.puts err
-        end
+        run_script shard.scripts[name]
       end
     rescue File::NotFoundError
       error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
     rescue ex : YAML::ParseException
       error ["Failed to parse shard.yml contents:", ex.to_s]
+    end
+
+    private def run_script(script : String) : Nil
+      stdout << "» Running script: "
+      stdout << '\n' if script.lines.size > 1
+      stdout << script.colorize.light_gray << "\n\n"
+
+      status : Process::Status
+      taken : Time::Span
+      err = IO::Memory.new
+      start = Time.monotonic
+
+      {% begin %}
+        {% if flag?(:win32) %}begin{% end %}
+          status = Process.run(script, shell: true, output: stdout, error: err)
+          taken = Time.monotonic - start
+        {% if flag?(:win32) %}
+          rescue ex : File::NotFoundError
+            error [
+              "Failed to start process for script:",
+              ex.to_s,
+              "If you are using command prompt builtins or extensions,",
+              "make sure the script is prefixed with 'cmd.exe /C'",
+            ]
+            system_exit
+          end
+        {% end %}
+      {% end %}
+
+      if status.success?
+        success "Completed in #{taken.milliseconds}ms"
+      else
+        error "Script '#{name}' failed (#{taken.milliseconds}ms):"
+        stderr.puts err
+      end
     end
   end
 end

@@ -20,7 +20,7 @@ module Geode
     property development : Dependency = Dependency.new
     property libraries : Hash(String, String) = {} of String => String
     property executables : Array(String) = [] of String
-    property scripts : Hash(String, String | Hash(String, String)) = Hash(String, String | Hash(String, String)).new
+    property scripts : Hash(String, String) = {} of String => String
     property targets : Hash(String, Hash(String, String)) = Hash(String, Hash(String, String)).new
 
     def self.load_local : self
