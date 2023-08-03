@@ -36,7 +36,7 @@ module Geode
       # add_command Commands::Vendor.new
       # add_command Commands::Remove.new
       add_command Commands::List.new
-      # add_command Commands::Info.new
+      add_command Commands::Info.new
       add_command Commands::Run.new
       # add_command Commands::Config.new
     end
