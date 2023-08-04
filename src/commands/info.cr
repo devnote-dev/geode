@@ -76,6 +76,20 @@ module Geode::Commands
           stdout << '\n'
         end
       {% end %}
+
+      unless shard.libraries.empty?
+        stdout << "libraries:\n".colorize.bold
+        shard.libraries.each do |name, version|
+          stdout << name << ": " << version << '\n'
+        end
+        stdout << '\n'
+      end
+
+      unless shard.executables.empty?
+        stdout << "executables:\n".colorize.bold
+        shard.executables.each { |e| stdout << "• " << e << '\n' }
+        stdout << '\n'
+      end
     rescue ex : YAML::ParseException
       error ["Failed to parse shard.yml contents:", ex.to_s]
     end
