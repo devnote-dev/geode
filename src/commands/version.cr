@@ -9,7 +9,10 @@ module Geode::Commands
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      stdout.puts "geode version #{Geode::VERSION} [#{Geode::BUILD_HASH}] (#{Geode::BUILD_DATE})"
+      stdout << "geode version " << Geode::VERSION
+      stdout << " [" << Geode::BUILD_HASH << "] ("
+      stdout << Geode::BUILD_DATE << ")\n\n"
+      stdout << "Host Triple: " << Geode::HOST_TRIPLE << '\n'
     end
   end
 end
