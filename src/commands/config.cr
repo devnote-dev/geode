@@ -13,6 +13,11 @@ module Geode::Commands
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       config = Geode::Config.load
 
+      stdout << "system\n".colorize.bold
+      stdout << "cache: " << Geode::Config::CACHE_DIR << '\n'
+      stdout << "library: " << Geode::Config::LIBRARY_DIR << '\n'
+      stdout << "location: " << Geode::Config::PATH << "\n\n"
+
       stdout << "notices\n".colorize.bold
       stdout << "shardbox: " << (config.notices["shardbox"]? || false) << "\n\n"
 
@@ -44,23 +49,29 @@ module Geode::Commands
         value = arguments.get?("value")
 
         case key
+        when "system.cache", "system.library", "system.location"
+          error "System paths are not configurable"
+          system_exit
         when "notices.shardbox"
           if value.nil?
             error "A value is required for this key"
             system_exit
           end
+
           config.notices["shardbox"] = value.as_bool
         when "metrics.enabled"
           if value.nil?
             error "A value is required for this key"
             system_exit
           end
+
           config.metrics.enabled = value.as_bool
         when "metrics.push"
           if value.nil?
             error "A value is required for this key"
             system_exit
           end
+
           config.metrics.push = value.as_bool
         when "templates.author"
           config.templates.author = value.try &.as_s
@@ -77,6 +88,7 @@ module Geode::Commands
             "Unknown config key: #{key}",
             "See '#{"geode config --help".colorize.bold}' for available config keys",
           ]
+          system_exit
         end
 
         config.save
