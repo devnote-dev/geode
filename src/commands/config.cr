@@ -6,6 +6,7 @@ module Geode::Commands
 
       add_usage "config set <key> <value>"
       add_usage "config setup"
+      add_command Set.new
       add_command Setup.new
     end
 
@@ -25,6 +26,63 @@ module Geode::Commands
       stdout << "license: " << config.templates.license << '\n'
       stdout << "vcs: " << config.templates.vcs << '\n'
       stdout << "vcs-fallback: " << config.templates.vcs_fallback << '\n'
+    end
+
+    class Set < BaseCommand
+      def setup : Nil
+        @name = "set"
+        @summary = "sets a key in the config"
+
+        add_usage "config set <key> <value>"
+        add_argument "key", description: "the key in the config", required: true
+        add_argument "value", description: "the value to set"
+      end
+
+      def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+        config = Geode::Config.load
+        key = arguments.get("key").as_s
+        value = arguments.get?("value")
+
+        case key
+        when "notices.shardbox"
+          if value.nil?
+            error "A value is required for this key"
+            system_exit
+          end
+          config.notices["shardbox"] = value.as_bool
+        when "metrics.enabled"
+          if value.nil?
+            error "A value is required for this key"
+            system_exit
+          end
+          config.metrics.enabled = value.as_bool
+        when "metrics.push"
+          if value.nil?
+            error "A value is required for this key"
+            system_exit
+          end
+          config.metrics.push = value.as_bool
+        when "templates.author"
+          config.templates.author = value.try &.as_s
+        when "templates.url"
+          config.templates.url = value.try &.as_s
+        when "templates.license"
+          config.templates.license = value.try &.as_s
+        when "templates.vcs"
+          config.templates.vcs = value.try &.as_s
+        when "templates.vcs-fallback"
+          config.templates.vcs_fallback = value.try &.as_s
+        else
+          error [
+            "Unknown config key: #{key}",
+            "See '#{"geode config --help".colorize.bold}' for available config keys",
+          ]
+        end
+
+        config.save
+      rescue TypeCastError
+        error "Expected key '#{key}' to be a boolean, not a string"
+      end
     end
 
     class Setup < BaseCommand
