@@ -87,33 +87,13 @@ module Geode::Commands
 
       start = Time.monotonic
       status = Process.run("crystal", command, output: pipe ? stdout : Process::Redirect::Close, error: err)
-      taken = format(Time.monotonic - start)
+      taken = format_time(Time.monotonic - start)
 
       if status.success?
         success "Target '#{name}' built in #{taken}"
       else
         error "Target '#{name}' failed (#{taken}):"
         stderr.puts err
-      end
-    end
-
-    private def format(time : Time::Span) : String
-      String.build do |io|
-        unless time.hours.zero?
-          io << time.hours << 'h'
-        end
-
-        unless time.minutes.zero?
-          io << time.minutes << 'm' << ' '
-        end
-
-        unless time.seconds.zero?
-          io << time.seconds << 's' << ' '
-        end
-
-        unless time.milliseconds.zero?
-          io << time.milliseconds << "ms"
-        end
       end
     end
   end

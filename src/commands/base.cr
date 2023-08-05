@@ -132,5 +132,25 @@ module Geode::Commands
     protected def system_exit : NoReturn
       raise SystemExit.new
     end
+
+    protected def format_time(time : Time::Span) : String
+      String.build do |io|
+        unless time.hours.zero?
+          io << time.hours << 'h'
+        end
+
+        unless time.minutes.zero?
+          io << time.minutes << 'm' << ' '
+        end
+
+        unless time.seconds.zero?
+          io << time.seconds << 's' << ' '
+        end
+
+        unless time.milliseconds.zero?
+          io << time.milliseconds << "ms"
+        end
+      end
+    end
   end
 end

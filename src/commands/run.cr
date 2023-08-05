@@ -78,14 +78,14 @@ module Geode::Commands
       stdout << script.colorize.light_gray << "\n\n"
 
       status : Process::Status
-      taken : Time::Span
+      taken : String
       err = IO::Memory.new
       start = Time.monotonic
 
       {% begin %}
         {% if flag?(:win32) %}begin{% end %}
           status = Process.run(script, shell: true, output: stdout, error: err)
-          taken = Time.monotonic - start
+          taken = format_time(Time.monotonic - start)
         {% if flag?(:win32) %}
           rescue ex : File::NotFoundError
             error [
@@ -100,9 +100,9 @@ module Geode::Commands
       {% end %}
 
       if status.success?
-        success "Completed in #{taken.milliseconds}ms"
+        success "Completed in #{taken}"
       else
-        error "Script '#{name}' failed (#{taken.milliseconds}ms):"
+        error "Script '#{name}' failed (#{taken}):"
         stderr.puts err
       end
     end
