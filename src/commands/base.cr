@@ -30,6 +30,17 @@ module Geode::Commands
         error [ex.to_s, "See '#{"geode --help".colorize.bold}' for more information"]
       when Cling::ExecutionError
         on_invalid_option ex.to_s
+      when Geode::Config::Error
+        case ex.code
+        in .not_found?
+          error [
+            "Config not found",
+            "Location: #{Geode::Config::PATH}",
+            "Run '#{"geode config setup".colorize.bold}' to get started",
+          ]
+        in .parse_exception?
+          error ["Failed to parse config:", ex.message.as(String)]
+        end
       when SystemExit
         raise ex
       else
