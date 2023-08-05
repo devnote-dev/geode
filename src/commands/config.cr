@@ -112,7 +112,14 @@ module Geode::Commands
           Dir.mkdir_p Geode::Config::LIBRARY_DIR
         end
 
-        unless File.exists? Geode::Config::PATH
+        if File.exists? Geode::Config::PATH
+          begin
+            _ = INI.parse File.read Geode::Config::PATH
+          rescue INI::ParseException
+            warn "Failed to parse config, setting to default"
+            Geode::Config.new(nil, nil, nil).save
+          end
+        else
           Geode::Config.new(nil, nil, nil).save
         end
       end
