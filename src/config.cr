@@ -74,11 +74,11 @@ module Geode
 
       templates = data["templates"]?.try do |value|
         Templates.new(
-          value["author"]? || "",
-          value["url"]? || "",
-          value["license"]? || "",
-          value["vcs"]? || "",
-          value["vcs-fallback"]? || ""
+          value["author"]?,
+          value["url"]?,
+          value["license"]?,
+          value["vcs"]?,
+          value["vcs-fallback"]?
         )
       end
 

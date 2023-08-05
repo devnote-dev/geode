@@ -26,7 +26,7 @@ module Geode
   class CLI < Commands::BaseCommand
     def setup : Nil
       @name = "app"
-      @header = %(#{"Geode".colorize.magenta}: #{"A Crystal Package Manager".colorize.light_magenta})
+      @header = %(#{"Geode".colorize.magenta} • #{"A Crystal Package Manager".colorize.light_magenta})
 
       add_command Commands::Version.new
       add_command Commands::Init.new
@@ -38,6 +38,7 @@ module Geode
       add_command Commands::Build.new
       # add_command Commands::Vendor.new
       add_command Commands::Remove.new
+      # add_command Commands::Prune.new
       add_command Commands::List.new
       add_command Commands::Info.new
       add_command Commands::Run.new

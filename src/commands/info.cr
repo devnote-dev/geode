@@ -79,8 +79,8 @@ module Geode::Commands
 
       unless shard.libraries.empty?
         stdout << "libraries:\n".colorize.bold
-        shard.libraries.each do |name, version|
-          stdout << name << ": " << version << '\n'
+        shard.libraries.each do |_name, version|
+          stdout << _name << ": " << version << '\n'
         end
         stdout << '\n'
       end
