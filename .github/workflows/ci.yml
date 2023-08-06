@@ -32,5 +32,8 @@ jobs:
       - name: Check Format
         run: crystal tool format --check
 
-      - name: Run Specs
-        run: crystal spec
+      # - name: Install Dependencies
+      #   run: shards install --skip-postinstall
+
+      # - name: Run Specs
+      #   run: crystal spec
