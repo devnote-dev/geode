@@ -2,13 +2,13 @@ version: 2.0
 shards:
   ameba:
     git: https://github.com/crystal-ameba/ameba.git
-    version: 1.4.3
+    version: 1.5.0
 
   cling:
     git: https://github.com/devnote-dev/cling.git
     version: 3.0.0+git.commit.c8975969bab1104be2ff9d715f2197dee6e4dd18
 
-  lucky_template:
-    git: https://github.com/luckyframework/lucky_template.git
-    version: 0.1.0
+  molinillo:
+    git: https://github.com/crystal-lang/crystal-molinillo.git
+    version: 0.2.0
 

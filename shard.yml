@@ -1,26 +1,35 @@
 name: geode
-version: 0.1.0
-crystal: 1.7.0
-
+description: A Crystal Package Manager
 authors:
   - Devonte W <https://github.com/devnote-dev>
+
+version: 0.1.0
+crystal: 1.7.0
+license: MPL
+repository: https://github.com/devnote-dev/geode
 
 dependencies:
   cling:
     github: devnote-dev/cling
     branch: main
 
+  # lucky_template:
+  #   github: luckyframework/lucky_template
+  #   version: ~> 0.2.0
+
+  molinillo:
+    github: crystal-lang/crystal-molinillo
+
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.4.3
+    version: ~> 1.5.0
 
-  lucky_template:
-    github: luckyframework/lucky_template
-    version: ~> 0.1.0
+scripts:
+  clean@linux: rm bin/geode
+  clean@windows: cmd /c del bin\geode.exe bin\geode.pdb
 
 targets:
   geode:
     main: src/main.cr
-
-license: MPL
+    args: --progress
