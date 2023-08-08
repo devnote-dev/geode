@@ -12,3 +12,7 @@ shards:
     git: https://github.com/crystal-lang/crystal-molinillo.git
     version: 0.2.0
 
+  semantic_compare:
+    git: https://github.com/j8r/semantic_compare.git
+    version: 0.5.1
+
