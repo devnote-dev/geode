@@ -3,11 +3,13 @@ require "cling/ext"
 require "colorize"
 require "file_utils"
 require "ini"
+require "molinillo"
 require "yaml"
 
 require "./commands/*"
 require "./config"
 require "./shard"
+require "./solver"
 
 Colorize.on_tty_only!
 
