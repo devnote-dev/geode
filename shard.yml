@@ -40,3 +40,7 @@ targets:
   watch:
     main: src/main.cr
     args: --progress -D watch_cmd -o bin/geode
+
+  resolver:
+    main: src/main.cr
+    args: --progress -D resolver -o bin/geode

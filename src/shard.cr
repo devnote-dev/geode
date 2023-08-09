@@ -1,12 +1,14 @@
 module Geode
-  class Dependency
-    getter name : String
-    getter constraint : String
-    getter resolver : Resolver
+  {% if flag?(:resolver) %}
+    class Dependency
+      getter name : String
+      getter constraint : String
+      getter resolver : Resolver
 
-    def initialize(@name, @constraint, @resolver)
+      def initialize(@name, @constraint, @resolver)
+      end
     end
-  end
+  {% end %}
 
   class Shard
     include YAML::Serializable
