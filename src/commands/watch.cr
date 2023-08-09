@@ -106,7 +106,7 @@ module Geode::Commands
     end
 
     private def get_timestamps : Array(Int64)?
-      files = Dir.glob("src/**/*").select &.ends_with? ".cr"
+      files = Dir.glob "src/**/*.cr"
       return nil if files.empty?
 
       files.map { |path| File.info(path).modification_time.to_unix }
