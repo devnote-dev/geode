@@ -38,6 +38,7 @@ module Geode
       # add_command Commands::Check.new
       # add_command Commands::Update.new
       add_command Commands::Build.new
+      add_command Commands::Watch.new
       # add_command Commands::Vendor.new
       add_command Commands::Remove.new
       # add_command Commands::Prune.new

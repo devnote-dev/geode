@@ -36,3 +36,7 @@ targets:
   geode:
     main: src/main.cr
     args: --progress
+
+  watch:
+    main: src/main.cr
+    args: --progress -D watch_cmd -o bin/geode
