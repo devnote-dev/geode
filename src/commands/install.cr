@@ -8,8 +8,9 @@ module Geode::Commands
         unless you include the '--production' flag.
         DESC
 
-      add_usage "install [-D|--no-development] [--frozen] [--production] [--verbose]"
+      add_usage "install [-D|--no-development] [-e|--executable] [--frozen] [--production] [--verbose]"
       add_option 'D', "no-development"
+      add_option 'e', "executable"
       add_option "frozen"
       add_option "production"
     end
