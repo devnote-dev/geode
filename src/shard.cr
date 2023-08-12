@@ -1,22 +1,32 @@
 module Geode
-  {% if flag?(:resolver) %}
-    class Dependency
-      getter name : String
-      getter constraint : String
-      getter resolver : Resolver
+  class Dependency
+    include YAML::Serializable
 
-      def initialize(@name, @constraint, @resolver)
-      end
+    property! name : String
+    property! version : String
+    property! path : String
+    property! git : String
+    property! github : String
+    property! gitlab : String
+    property! bitbucket : String
+    property! hg : String
+    property! fossil : String
+  end
+
+  class Package
+    getter name : String
+    getter constraint : String
+    getter resolver : Resolver
+
+    def initialize(@name, @constraint, @resolver)
     end
-  {% end %}
+  end
 
   class Shard
     include YAML::Serializable
     include YAML::Serializable::Unmapped
 
     NAME_REGEX = /\A[a-z][a-z0-9_-]+\z/
-
-    alias Dependency = Hash(String, Hash(String, String))
 
     property name : String
     property description : String?
@@ -26,9 +36,9 @@ module Geode
     property documentation : String?
     property license : String?
     property repository : String?
-    property dependencies : Dependency = Dependency.new
+    property dependencies : Hash(String, Dependency) = {} of String => Dependency
     @[YAML::Field(key: "development_dependencies")]
-    property development : Dependency = Dependency.new
+    property development : Hash(String, Dependency) = {} of String => Dependency
     property libraries : Hash(String, String) = {} of String => String
     property executables : Array(String) = [] of String
     property scripts : Hash(String, String) = {} of String => String
@@ -36,6 +46,11 @@ module Geode
 
     def self.load_local : self
       from_yaml File.read "shard.yml"
+    end
+
+    def name_dependencies : Nil
+      @dependencies.each { |name, dep| dep.name = name }
+      @development.each { |name, dep| dep.name = name }
     end
   end
 end
