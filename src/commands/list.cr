@@ -24,7 +24,7 @@ module Geode::Commands
         shard.dependencies.merge shard.development
       rescue ex : YAML::ParseException
         warn ["Failed to parse shard.yml contents:", ex.to_s]
-        Shard::Dependency.new
+        {} of String => Dependency
       end
 
       libs = get_libraries

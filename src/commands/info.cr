@@ -54,20 +54,20 @@ module Geode::Commands
         unless shard.{{ key.id }}.empty?
           stdout << "\n#{{{key == "development" ? "development " : ""}}}dependencies:\n".colorize.bold
 
-          shard.{{ key.id }}.each do |name, fields|
+          shard.{{ key.id }}.each do |name, dep|
             stdout << "• " << name
-            if version = fields["version"]?
-              stdout << ": " << version
+            if dep.version?
+              stdout << ": " << dep.version
             end
 
-            case fields
-            when .has_key? "path"       then stdout << " (" << fields["path"] << ')'
-            when .has_key? "git"        then stdout << " (" << fields["git"] << ')'
-            when .has_key? "github"     then stdout << " (github)"
-            when .has_key? "gitlab"     then stdout << " (gitlab)"
-            when .has_key? "bitbucket"  then stdout << " (bitbucket)"
-            when .has_key? "hg"         then stdout << " (hg)"
-            when .has_key? "fossil"     then stdout << " (fossil)"
+            case dep
+            when .path?       then stdout << " (" << dep.path << ')'
+            when .git?        then stdout << " (" << dep.git << ')'
+            when .github?     then stdout << " (github)"
+            when .gitlab?     then stdout << " (gitlab)"
+            when .bitbucket?  then stdout << " (bitbucket)"
+            when .hg?         then stdout << " (hg)"
+            when .fossil?     then stdout << " (fossil)"
             end
 
             stdout << '\n'
