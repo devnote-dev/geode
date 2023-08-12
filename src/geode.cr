@@ -3,7 +3,9 @@ require "cling/ext"
 require "colorize"
 require "file_utils"
 require "ini"
+require "log"
 require "molinillo"
+require "uri"
 require "yaml"
 
 require "./commands/*"
@@ -11,8 +13,10 @@ require "./config"
 require "./shard"
 
 {% if flag?(:resolver) %}
+  require "./resolvers/resolver"
   require "./resolvers/*"
   require "./solver"
+  require "./version"
 {% end %}
 
 Colorize.on_tty_only!
