@@ -10,7 +10,6 @@ module Geode::Commands
       add_option 'p', "pipe", description: "pipes the build output"
     end
 
-    {% if flag?(:watch_cmd) %}
       def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
         shard = Shard.load_local
         if shard.targets.empty?
@@ -88,11 +87,6 @@ module Geode::Commands
       rescue ex : YAML::ParseException
         error ["Failed to parse shard.yml contents:", ex.to_s]
       end
-    {% else %}
-      def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-        error "This version of Geode was built without watch support"
-      end
-    {% end %}
 
     private def build(name : String, main : String, args : String?, pipe : Bool) : Nil
       err = IO::Memory.new
