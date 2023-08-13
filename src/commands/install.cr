@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Install < BaseCommand
+  class Install < Base
     def setup : Nil
       @name = "install"
       @summary = "installs dependencies from shard.yml"

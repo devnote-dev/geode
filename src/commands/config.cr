@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Config < BaseCommand
+  class Config < Base
     def setup : Nil
       @name = "config"
       @summary = "manages the geode config"
@@ -33,7 +33,7 @@ module Geode::Commands
       stdout << "vcs-fallback: " << config.templates.vcs_fallback << '\n'
     end
 
-    class Set < BaseCommand
+    class Set < Base
       def setup : Nil
         @name = "set"
         @summary = "sets a key in the config"
@@ -97,7 +97,7 @@ module Geode::Commands
       end
     end
 
-    class Setup < BaseCommand
+    class Setup < Base
       def setup : Nil
         @name = "setup"
         @summary = "setup the geode config"

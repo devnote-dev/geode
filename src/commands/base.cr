@@ -1,5 +1,5 @@
 module Geode::Commands
-  abstract class BaseCommand < Cling::Command
+  abstract class Base < Cling::Command
     def initialize
       super
 

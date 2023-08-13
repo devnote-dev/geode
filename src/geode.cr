@@ -30,7 +30,7 @@ module Geode
   BUILD_HASH  = {{ `git rev-parse HEAD`.stringify[0...8] }}
   HOST_TRIPLE = {{ Crystal::DESCRIPTION.split("target:").last.strip }}
 
-  class CLI < Commands::BaseCommand
+  class CLI < Commands::Base
     def setup : Nil
       @name = "app"
       @header = %(#{"Geode".colorize.magenta} • #{"A Crystal Package Manager".colorize.light_magenta})

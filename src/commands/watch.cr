@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Watch < BaseCommand
+  class Watch < Base
     def setup : Nil
       @name = "watch"
       @summary = "builds and watches a target from shard.yml"

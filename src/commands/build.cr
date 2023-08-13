@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Build < BaseCommand
+  class Build < Base
     def setup : Nil
       @name = "build"
       @summary = "builds one or more targets from shard.yml"

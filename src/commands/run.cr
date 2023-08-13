@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Run < BaseCommand
+  class Run < Base
     def setup : Nil
       @name = "run"
       @summary = "runs a script from shard.yml"

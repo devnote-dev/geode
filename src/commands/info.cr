@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Info < BaseCommand
+  class Info < Base
     def setup : Nil
       @name = "info"
       @summary = "gets information about a shard"

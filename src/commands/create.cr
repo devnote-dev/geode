@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Create < BaseCommand
+  class Create < Base
     def setup : Nil
       @name = "create"
 

@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Remove < BaseCommand
+  class Remove < Base
     def setup : Nil
       @name = "remove"
       @summary = "removes a specified dependency from shard.yml"

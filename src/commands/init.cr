@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Init < BaseCommand
+  class Init < Base
     private COMMAND = {% if flag?(:darwin) %}"Cmd"{% else %}"Ctrl"{% end %}
     private CHAR    = {% if flag?(:darwin) %}"Q"{% else %}"C"{% end %}
 

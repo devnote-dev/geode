@@ -1,5 +1,5 @@
 module Geode::Commands
-  class List < BaseCommand
+  class List < Base
     def setup : Nil
       @name = "list"
       @summary = "lists installed shards"

@@ -1,5 +1,5 @@
 module Geode::Commands
-  class Version < BaseCommand
+  class Version < Base
     def setup : Nil
       @name = "version"
       @summary = "gets the version information about Geode"
