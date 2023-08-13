@@ -223,7 +223,7 @@ module Geode
         path += ".git" unless path.ends_with?(".git")
         path = Path[path]
         # E.g. turns "c:\local\path.git" into "c\local\path.git". Or just drops the leading slash.
-        if (anchor = path.anchor)
+        if anchor = path.anchor
           path = Path[path.drive.to_s.rchop(":"), path.relative_to(anchor)]
         end
 
@@ -371,7 +371,7 @@ module Geode
     # Parses a URI string, with additional support for ssh+git URI schemes.
     private def parse_uri(raw_uri)
       # Need to check for file URIs early, otherwise generic parsing will fail on a colon.
-      if (path = raw_uri.lchop?("file://"))
+      if path = raw_uri.lchop?("file://")
         return URI.new(scheme: "file", path: path)
       end
 

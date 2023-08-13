@@ -8,9 +8,8 @@ module Geode
       protected getter! segment : String
 
       def initialize(@str : String)
-        if index = @str.index('+')
-          @str = @str[0...index]
-        end
+        return unless index = @str.index('+')
+        @str = @str[0...index]
       end
 
       def next
