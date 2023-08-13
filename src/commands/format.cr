@@ -55,7 +55,12 @@ module Geode::Commands
         end
         str << "--" << name
         str << " " * (max_size - name_size)
-        str << option.description << '\n'
+        str << option.description
+
+        if default = option.default
+          str << " (default: " << default << ')'
+        end
+        str << '\n'
       end
     end
   end
