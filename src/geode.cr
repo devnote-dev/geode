@@ -10,14 +10,11 @@ require "yaml"
 
 require "./commands/*"
 require "./config"
+require "./resolvers/resolver"
+require "./resolvers/*"
 require "./shard"
-
-{% if flag?(:resolver) %}
-  require "./resolvers/resolver"
-  require "./resolvers/*"
-  require "./solver"
-  require "./version"
-{% end %}
+require "./solver"
+require "./version"
 
 Colorize.on_tty_only!
 
