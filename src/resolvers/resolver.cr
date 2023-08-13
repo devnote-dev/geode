@@ -1,5 +1,3 @@
-require "file_utils"
-
 module Geode
   abstract class Resolver
     getter name : String
@@ -15,8 +13,16 @@ module Geode
 
     def self.from(dep : Dependency) : self
       case dep
-      when .git?, .github?
-        GitResolver.new dep.name, (dep.git? ? dep.git : dep.github)
+      when .git?
+        GitResolver.new dep.name, dep.git
+      when .github?
+        source = dep.github
+        source += "github.com/" unless source.starts_with? "github.com/"
+        source += "https://" unless source.starts_with? "https://"
+
+        GitResolver.new dep.name, source
+
+        # NOTE: GitResolver can also support bitbucket
       else
         # TODO: implement other branches
         raise "Cannot resolve dependency (unsupported resolver)"
