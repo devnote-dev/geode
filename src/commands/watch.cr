@@ -4,8 +4,9 @@ module Geode::Commands
       @name = "watch"
       @summary = "builds and watches a target from shard.yml"
 
-      add_usage "watch [-p|--pipe] [target]"
+      add_usage "watch [-i|--interval <time>] [-p|--pipe] [target]"
       add_argument "target", description: "the name of the target"
+      add_option 'i', "interval", description: "the wait interval in seconds", type: :single, default: 0.5
       add_option 'p', "pipe", description: "pipes the build output"
     end
 
@@ -37,6 +38,13 @@ module Geode::Commands
           system_exit
         end
 
+        begin
+          interval = options.get("interval").as_f
+        rescue
+          error "Could not parse interval (must be a number)"
+          system_exit
+        end
+
         unless old_stamps = get_timestamps
           error "No Crystal files found to watch"
           system_exit
@@ -51,7 +59,7 @@ module Geode::Commands
         sig = Channel(Int32).new
         spawn do
           loop do
-            sleep 0.5
+            sleep interval
 
             unless new_stamps = get_timestamps
               sig.close
