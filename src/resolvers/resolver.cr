@@ -17,8 +17,9 @@ module Geode
         GitResolver.new dep.name, dep.git
       when .github?
         source = dep.github
-        source += "github.com/" unless source.starts_with? "github.com/"
-        source += "https://" unless source.starts_with? "https://"
+        source = "github.com/" + source unless source.starts_with? "github.com/"
+        source = "https://" + source unless source.starts_with? "https://"
+        source += ".git" unless source.ends_with? ".git"
 
         GitResolver.new dep.name, source
 

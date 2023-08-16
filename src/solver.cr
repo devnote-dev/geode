@@ -39,10 +39,12 @@ module Geode
       base = Molinillo::DependencyGraph(Dependency, Dependency).new
       # TODO: factor in shard.lock
 
+      pp deps.values.to_json
       result = Molinillo::Resolver(Dependency, Shard).new(self, self).resolve(deps.values, base)
       packages = [] of Package
 
       tsort(result).each do |res|
+        pp! res
         next unless shard = res.payload.as?(Shard)
         next if shard.name == "crystal"
 
@@ -64,7 +66,7 @@ module Geode
       active = Atomic.new 0
       sig = Channel(Exception?).new(deps.size + 1)
 
-      deps.each do |name, dep|
+      deps.each do |_, dep|
         active.add 1
         while active.get > 8
           Fiber.yield
@@ -72,7 +74,7 @@ module Geode
 
         spawn do
           begin
-            resolver = Resolver.find_resolver "git", name, dep.github
+            resolver = Resolver.from dep
             resolver.update_local_cache
             sig.send nil
           rescue ex
@@ -86,6 +88,7 @@ module Geode
       deps.size.times do
         # TODO: group these
         if ex = sig.receive
+          pp! ex
           raise ex
         end
       end

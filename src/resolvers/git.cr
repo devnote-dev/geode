@@ -285,7 +285,8 @@ module Geode
       end
 
       # TODO: replace all these Shards.local? with something
-      return if false || @updated_cache
+      return if @updated_cache
+      # return if Shards.local? || @updated_cache
       Log.info { "Fetching #{git_url}" }
 
       if cloned_repository?
@@ -404,7 +405,9 @@ module Geode
     end
 
     private def run(command, path = local_path, capture = false)
-      if false && !Dir.exists?(path)
+      # FIXME: Shards.local?
+      # if false && !Dir.exists?(path)
+      if !Dir.exists?(path)
         dependency_name = File.basename(path, ".git")
         raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
       end

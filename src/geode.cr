@@ -1,3 +1,4 @@
+require "json"
 require "cling"
 require "cling/ext"
 require "colorize"
@@ -17,6 +18,8 @@ require "./solver"
 require "./version"
 
 Colorize.on_tty_only!
+
+Log.setup :debug
 
 module Geode
   VERSION = "0.1.0"
