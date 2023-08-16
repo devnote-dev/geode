@@ -49,12 +49,22 @@ module Geode::Commands
         system_exit
       end
 
-      pipe = options.has? "pipe"
       stdout.puts "» Building: #{name}"
-      build name, target["main"], target["args"]?, pipe
+      pipe = options.has? "pipe"
+      err = IO::Memory.new
+      proc = new_process name, target["main"], target["args"]?, pipe, err
+      start = Time.monotonic
+      status = proc.wait
+      taken = format_time(Time.monotonic - start)
+
+      if status.success?
+        success "Target built in #{taken}"
+      else
+        error "Target failed (#{taken}):"
+        stderr.puts err
+      end
       stdout.puts "» Waiting for file changes..."
 
-      # TODO: there should probably be some kind of semaphore for this
       sig = Channel(Int32).new
       spawn do
         loop do
@@ -75,9 +85,29 @@ module Geode::Commands
 
       loop do
         break unless count = sig.receive?
+        if proc.exists?
+          stdout.puts if pipe
+          stdout.puts "» Cancelling build"
+          proc.terminate
+        end
+
         stdout.puts "» Rebuilding (#{count} file change#{"s" if count > 1})"
-        build name, target["main"], target["args"]?, pipe
-        stdout.puts "» Waiting for file changes..."
+        proc = new_process name, target["main"], target["args"]?, pipe, err
+
+        spawn do
+          start = Time.monotonic
+          status = proc.wait
+          taken = format_time(Time.monotonic - start)
+
+          if status.success?
+            success "Target rebuilt in #{taken}"
+            stdout.puts "» Waiting for file changes..."
+          elsif status.normal_exit?
+            error "Target failed (#{taken}):"
+            stderr.puts err
+            stdout.puts "» Waiting for file changes..."
+          end
+        end
       end
     rescue File::NotFoundError
       error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
@@ -85,30 +115,21 @@ module Geode::Commands
       error ["Failed to parse shard.yml contents:", ex.to_s]
     end
 
-    private def build(name : String, main : String, args : String?, pipe : Bool) : Nil
-      err = IO::Memory.new
-      command = ["build", "-o", (Path["bin"] / name).to_s, main]
-      if extra = args
-        command.concat extra.split
-      end
-
-      start = Time.monotonic
-      status = Process.run("crystal", command, output: pipe ? stdout : Process::Redirect::Close, error: err)
-      taken = format_time(Time.monotonic - start)
-
-      if status.success?
-        success "Target rebuilt in #{taken}"
-      else
-        error "Target failed (#{taken}):"
-        stderr.puts err
-      end
-    end
-
     private def get_timestamps : Array(Int64)?
       files = Dir.glob "src/**/*.cr"
       return nil if files.empty?
 
       files.map { |path| File.info(path).modification_time.to_unix }
+    end
+
+    private def new_process(name : String, main : String, args : String?, pipe : Bool, err : IO::Memory) : Process
+      command = ["build", "-o", (Path["bin"] / name).to_s, main]
+      if extra = args
+        command.concat extra.split
+      end
+      err.rewind
+
+      Process.new("crystal", command, output: pipe ? stdout : Process::Redirect::Close, error: err)
     end
   end
 end
