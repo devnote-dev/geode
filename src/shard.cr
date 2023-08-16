@@ -1,6 +1,7 @@
 module Geode
   class Dependency
     include YAML::Serializable
+    include JSON::Serializable
 
     property! name : String
     property! version : String
@@ -11,6 +12,10 @@ module Geode
     property! bitbucket : String
     property! hg : String
     property! fossil : String
+
+    def to_s(io : IO) : Nil
+      io << name
+    end
   end
 
   class Package
