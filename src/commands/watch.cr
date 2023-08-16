@@ -127,7 +127,7 @@ module Geode::Commands
       if extra = args
         command.concat extra.split
       end
-      err.rewind
+      err.clear
 
       Process.new("crystal", command, output: pipe ? stdout : Process::Redirect::Close, error: err)
     end
