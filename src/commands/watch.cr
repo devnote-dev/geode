@@ -4,10 +4,12 @@ module Geode::Commands
       @name = "watch"
       @summary = "builds and watches a target from shard.yml"
 
-      add_usage "watch [-i|--interval <time>] [-p|--pipe] [target]"
+      add_usage "watch [-c|--check-start] [-i|--interval <time>] [-p|--pipe] [-s|--skip-start] [target]"
       add_argument "target", description: "the name of the target"
+      add_option 'c', "check-start", description: "check for the target executable at the start"
       add_option 'i', "interval", description: "the wait interval in seconds", type: :single, default: 0.5
       add_option 'p', "pipe", description: "pipes the build output"
+      add_option 's', "skip-start", description: "skip building at the start"
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -49,20 +51,34 @@ module Geode::Commands
         system_exit
       end
 
-      stdout.puts "» Building: #{name}"
       pipe = options.has? "pipe"
       err = IO::Memory.new
-      proc = new_process name, target["main"], target["args"]?, pipe, err
-      start = Time.monotonic
-      status = proc.wait
-      taken = format_time(Time.monotonic - start)
+      proc = Process.new "echo" # dummy process for variable access
 
-      if status.success?
-        success "Target built in #{taken}"
-      else
-        error "Target failed (#{taken}):"
-        stderr.puts err
+      should_build = if options.has?("skip-start")
+                       false
+                     elsif options.has?("check-start")
+                       !(File.executable?(Path["bin", name]) ||
+                         File.executable?(Path["bin", name + ".exe"]))
+                     else
+                       true
+                     end
+
+      if should_build
+        stdout.puts "» Building: #{name}"
+        proc = new_process name, target["main"], target["args"]?, pipe, err
+        start = Time.monotonic
+        status = proc.wait
+        taken = format_time(Time.monotonic - start)
+
+        if status.success?
+          success "Target built in #{taken}"
+        else
+          error "Target failed (#{taken}):"
+          stderr.puts err
+        end
       end
+
       stdout.puts "» Waiting for file changes..."
 
       sig = Channel(Int32).new
