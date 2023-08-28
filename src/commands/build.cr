@@ -56,7 +56,7 @@ module Geode::Commands
           count += 1
 
           spawn do
-            build name, target["main"], target["args"]?, pipe
+            build name, target["main"], target["flags"]?, pipe
             wait.send nil
           end
         end
@@ -70,7 +70,7 @@ module Geode::Commands
         end
 
         stdout.puts "» Building: #{name}"
-        build name, target["main"], target["args"]?, pipe
+        build name, target["main"], target["flags"]?, pipe
       end
     rescue File::NotFoundError
       error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
@@ -78,12 +78,10 @@ module Geode::Commands
       error ["Failed to parse shard.yml contents:", ex.to_s]
     end
 
-    private def build(name : String, main : String, args : String?, pipe : Bool) : Nil
+    private def build(name : String, main : String, flags : String?, pipe : Bool) : Nil
       err = IO::Memory.new
       command = ["build", "-o", (Path["bin"] / name).to_s, main]
-      if extra = args
-        command.concat extra.split
-      end
+      command.concat flags.split if flags
 
       start = Time.monotonic
       status = Process.run("crystal", command, output: pipe ? stdout : Process::Redirect::Close, error: err)

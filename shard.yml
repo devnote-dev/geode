@@ -35,4 +35,4 @@ scripts:
 targets:
   geode:
     main: src/main.cr
-    args: --progress
+    flags: --progress
