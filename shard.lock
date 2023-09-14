@@ -8,6 +8,10 @@ shards:
     git: https://github.com/devnote-dev/cling.git
     version: 3.0.0+git.commit.c8975969bab1104be2ff9d715f2197dee6e4dd18
 
+  lua:
+    git: https://github.com/veelenga/lua.cr.git
+    version: 0.2.0
+
   molinillo:
     git: https://github.com/crystal-lang/crystal-molinillo.git
     version: 0.2.0

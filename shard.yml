@@ -17,6 +17,9 @@ dependencies:
   #   github: luckyframework/lucky_template
   #   version: ~> 0.2.0
 
+  lua:
+    github: veelenga/lua.cr
+
   molinillo:
     github: crystal-lang/crystal-molinillo
 
