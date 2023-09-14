@@ -55,6 +55,7 @@ module Geode
       add_command Commands::Info.new
       add_command Commands::Run.new
       add_command Commands::Config.new
+      # add_command Commands::Template.new
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil

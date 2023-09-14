@@ -14,6 +14,8 @@ module Geode
 
     PATH = CACHE_DIR / "config.ini"
 
+    TEMPLATES = LIBRARY_DIR / "templates"
+
     class Error < Exception
       enum Code
         NotFound
