@@ -1,0 +1,98 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: 0 0 * * *
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: latest
+
+      - name: Install Dependencies
+        run: shards install --production
+
+      - name: Compile Binaries
+        run: |
+          crystal build src/main.cr -o geode
+          tar -zcf geode-nightly-linux-x86_64.tar.gz geode
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: geode
+          path: |
+            geode
+            geode-nightly-linux-x86_64.tar.gz
+
+  windows:
+    needs: linux
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: latest
+
+      - name: Install Dependencies
+        run: shards install --production
+
+      - name: Compile Binaries
+        run: |
+          crystal build src\main.cr -o geode.exe
+          $compress = @{
+            Path = "geode.exe", "geode.pdb"
+            DestinationPath = "geode-nightly-windows-x86_64-msvc.zip"
+          }
+          Compress-Archive @compress
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: geode
+          path: |
+            geode.exe
+            geode.pdb
+            geode-nightly-windows-x86_64-msvc.zip
+
+  release:
+    needs: windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
+
+      - name: Prepare Artifacts
+        run: |
+          mv artifacts/geode/* .
+          sha256sum geode geode.exe geode.pdb > checksums.txt
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        run: |
+          gh release view nightly &>/dev/null && gh release delete nightly -y
+          gh release create nightly -pt Nightly --notes "Nightly release for $(date +%F)."
+          gh release upload nightly checksums.txt
+          gh release upload nightly geode-nightly-linux-x86_64.tar.gz
+          gh release upload nightly geode-nightly-windows-x86_64-msvc.zip
