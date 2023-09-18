@@ -1,10 +1,10 @@
 name: geode
-description: A Crystal Package Manager
+description: An alternative Crystal package manager
 authors:
   - Devonte W <https://github.com/devnote-dev>
 
 version: 0.1.0
-crystal: 1.7.0
+crystal: '>= 1.7.0'
 license: MPL
 repository: https://github.com/devnote-dev/geode
 
