@@ -1,19 +1,18 @@
 module Geode
   class Config
     CACHE_DIR = {% if flag?(:win32) %}
-      Path[ENV["LOCALAPPDATA"], "geode"]
-    {% else %}
-      Path[ENV["XDG_CACHE_HOME"]? || Path.home / ".config" / "geode"]
-    {% end %}
+                  Path[ENV["LOCALAPPDATA"], "geode"]
+                {% else %}
+                  Path[ENV["XDG_CACHE_HOME"]? || Path.home / ".config" / "geode"]
+                {% end %}
 
     LIBRARY_DIR = {% if flag?(:win32) %}
-      Path[ENV["APPDATA"], "geode"]
-    {% else %}
-      Path[ENV["XDG_DATA_HOME"]? || Path.home / ".local" / "share" / "geode"]
-    {% end %}
+                    Path[ENV["APPDATA"], "geode"]
+                  {% else %}
+                    Path[ENV["XDG_DATA_HOME"]? || Path.home / ".local" / "share" / "geode"]
+                  {% end %}
 
-    PATH = CACHE_DIR / "config.ini"
-
+    PATH      = CACHE_DIR / "config.ini"
     TEMPLATES = LIBRARY_DIR / "templates"
 
     class Error < Exception
