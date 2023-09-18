@@ -1,18 +1,42 @@
-# geode
+<h1 align="center">Geode</h1>
+<h3 align="center">An alternative Crystal package manager</h3>
+<hr>
 
-TODO: Write a description here
+Geode is a drop-in replacement for [Shards](https://github.com/crystal-lang/shards) with additional features and tools for a better Crystal experience.
 
 ## Installation
 
-TODO: Write installation instructions here
+### From Release
+
+See the [releases page](https://github.com/devnote-dev/geode/releases) for available packaged binaries.
+
+#### Linux
+
+```sh
+curl -L https://github.com/devnote-dev/geode/releases/download/nightly/geode-nightly-linux-x86_64.tar.gz -o geode.tar.gz
+tar -xvf geode.tar.gz -C /usr/local/bin
+```
+
+#### Windows (PowerShell)
+
+```ps1
+Invoke-WebRequest "https://github.com/devnote-dev/geode/releases/download/nightly/geode-nightly-windows-x86_64-msvc.zip" -OutFile geode.zip
+Expand-Archive .\geode.zip .
+```
+
+### From Source
+
+[Crystal](https://crystal-lang.org/) version 1.5.0 or higher is required to build Geode. Make sure to add the `bin/` directory to `PATH` or move the Geode binaries to a directory in `PATH`.
+
+```sh
+git clone https://github.com/devnote-dev/geode
+cd geode
+shards build
+```
 
 ## Usage
 
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
+TODO.
 
 ## Contributing
 
@@ -26,4 +50,4 @@ TODO: Write development instructions here
 
 - [Devonte W](https://github.com/devnote-dev) - creator and maintainer
 
-©️ 2023 devnote-dev
+© 2023 devnote-dev
