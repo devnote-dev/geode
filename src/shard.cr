@@ -19,7 +19,6 @@ module Geode
 
   class Shard
     include YAML::Serializable
-    include YAML::Serializable::Unmapped
 
     NAME_REGEX = /\A[a-z][a-z0-9_-]+\z/
 

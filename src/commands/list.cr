@@ -8,8 +8,6 @@ module Geode::Commands
         transitive dependencies will also be listed even if they are not directly
         required by your project.
         DESC
-
-      add_usage "list"
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil

@@ -4,8 +4,6 @@ module Geode::Commands
       @name = "version"
       @summary = "gets the version information about Geode"
       @description = "Gets the version information about Geode."
-
-      add_usage "geode version"
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil

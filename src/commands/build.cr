@@ -14,7 +14,7 @@ module Geode::Commands
 
       add_usage "build [-p|--pipe] [targets...]"
       add_argument "targets", description: "the targets to build", multiple: true
-      add_option 'p', "pipe", description: "pipes the build output"
+      add_option 'p', "pipe", description: "pipe the build output"
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil

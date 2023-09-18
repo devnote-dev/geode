@@ -8,7 +8,7 @@ module Geode::Commands
       add_argument "target", description: "the name of the target"
       add_option 'c', "check-start", description: "check for the target executable at the start"
       add_option 'i', "interval", description: "the wait interval in seconds", type: :single, default: 0.5
-      add_option 'p', "pipe", description: "pipes the build output"
+      add_option 'p', "pipe", description: "pipe the build output"
       add_option 's', "skip-start", description: "skip building at the start"
     end
 
