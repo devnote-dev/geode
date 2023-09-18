@@ -1,7 +1,6 @@
 module Geode
   class Dependency
     include YAML::Serializable
-    include JSON::Serializable
 
     property! name : String
     property! version : String
@@ -15,15 +14,6 @@ module Geode
 
     def to_s(io : IO) : Nil
       io << name
-    end
-  end
-
-  class Package
-    getter name : String
-    getter constraint : String
-    getter resolver : Resolver
-
-    def initialize(@name, @constraint, @resolver)
     end
   end
 

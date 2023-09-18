@@ -17,12 +17,6 @@ dependencies:
     github: veelenga/lua.cr
     branch: master
 
-  molinillo:
-    github: crystal-lang/crystal-molinillo
-
-  semantic_compare:
-    github: j8r/semantic_compare
-
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba

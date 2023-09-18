@@ -35,17 +35,6 @@ module Geode::Commands
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      shard = Shard.load_local
-      solver = Solver.new shard, options.has?("development")
-
-      begin
-        packages = solver.solve
-      rescue ex
-        error ex.to_s
-        system_exit
-      end
-
-      pp! packages
     end
   end
 end

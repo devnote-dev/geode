@@ -3,24 +3,14 @@ require "cling/ext"
 require "colorize"
 require "file_utils"
 require "ini"
-require "json"
-require "log"
 require "lua"
-require "molinillo"
-require "uri"
 require "yaml"
 
 require "./commands/*"
 require "./config"
-require "./resolvers/resolver"
-require "./resolvers/*"
 require "./shard"
-require "./solver"
-require "./version"
 
 Colorize.on_tty_only!
-
-Log.setup :debug
 
 module Geode
   VERSION = "0.1.0"
