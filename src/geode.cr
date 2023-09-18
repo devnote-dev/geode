@@ -1,9 +1,9 @@
-require "json"
 require "cling"
 require "cling/ext"
 require "colorize"
 require "file_utils"
 require "ini"
+require "json"
 require "log"
 require "lua"
 require "molinillo"
@@ -55,7 +55,7 @@ module Geode
       add_command Commands::Info.new
       add_command Commands::Run.new
       add_command Commands::Config.new
-      # add_command Commands::Template.new
+      add_command Commands::Template.new
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
