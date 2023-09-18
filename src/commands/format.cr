@@ -21,7 +21,7 @@ module Geode::Commands
 
       unless command.children.empty?
         str << "Commands".colorize.magenta << '\n'
-        max_size = 4 + commands.children.keys.max_of &.size
+        max_size = 4 + command.children.keys.max_of &.size
 
         command.children.each do |name, cmd|
           str << "»  " << name
