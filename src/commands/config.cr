@@ -16,7 +16,6 @@ module Geode::Commands
       stdout << "system\n".colorize.bold
       stdout << "cache: " << Geode::Config::CACHE_DIR << '\n'
       stdout << "library: " << Geode::Config::LIBRARY_DIR << '\n'
-      stdout << "location: " << Geode::Config::PATH << "\n\n"
 
       stdout << "notices\n".colorize.bold
       stdout << "shardbox: " << (config.notices["shardbox"]? || false) << "\n\n"
