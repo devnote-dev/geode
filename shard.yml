@@ -13,12 +13,9 @@ dependencies:
     github: devnote-dev/cling
     branch: main
 
-  # lucky_template:
-  #   github: luckyframework/lucky_template
-  #   version: ~> 0.2.0
-
   lua:
     github: veelenga/lua.cr
+    branch: master
 
   molinillo:
     github: crystal-lang/crystal-molinillo
