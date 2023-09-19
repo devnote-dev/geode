@@ -57,6 +57,9 @@ jobs:
       - name: Install Dependencies
         run: shards install --production
 
+      - name: Setup MSVC Build Tools
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Install Lua
         uses: leafo/gh-actions-lua@v10
 
