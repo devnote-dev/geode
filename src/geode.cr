@@ -21,8 +21,9 @@ module Geode
                  {{ `date +%F`.stringify.chomp }}
                {% end %}
 
-  BUILD_HASH  = {{ `git rev-parse HEAD`.stringify[0...8] }}
-  HOST_TRIPLE = {{ Crystal::DESCRIPTION.split("target:").last.strip }}
+  BUILD_HASH    = {{ `git rev-parse HEAD`.stringify[0...8] }}
+  HOST_TRIPLE   = {{ Crystal::DESCRIPTION.split("target:").last.strip }}
+  HOST_PLATFORM = {{ flag?(:win32) ? "windows" : flag?(:darwin) ? "macos" : "linux" }}
 
   class CLI < Commands::Base
     def setup : Nil

@@ -51,7 +51,7 @@ module Geode::Commands
         system_exit
       end
 
-      args = %w[install --skip-postinstall]
+      args = %w[install --skip-executables --skip-postinstall]
       args << "--frozen" if options.has? "frozen"
       args << "--no-color" if options.has? "no-color"
       args << "--without-development" if options.has? "without-development"
@@ -94,33 +94,18 @@ module Geode::Commands
       end
 
       shards.each do |shard|
-        if shard.scripts.keys.any? &.starts_with? "postinstall@"
-          if script = shard.scripts["postinstall@#{Geode::HOST_TRIPLE}"]?
-            run_postinstall shard.name, Geode::HOST_TRIPLE, script
-          elsif script = shard.scripts["postinstall@#{TARGET}"]?
-            run_postinstall shard.name, TARGET, script
-          elsif script = shard.scripts["postinstall"]?
-            run_postinstall shard.name, nil, script
-          else
-            warn "No postinstall script available for this target"
-          end
+        if script = shard.find_target_script "postinstall", Geode::HOST_PLATFORM
+          run_postinstall shard.name, script
         else
-          run_postinstall shard.name, nil, shard.scripts["postinstall"]
+          warn "No postinstall script available for this platform"
         end
       end
 
       success "Install completed in #{format_time(Time.monotonic - start)}"
     end
 
-    private def run_postinstall(name : String, target : String?, script : String) : Nil
-      stdout << "» Running " << name << " postinstall"
-      if target
-        stdout << " (" << target << "):\n"
-      elsif script.lines.size > 1
-        stdout << ":\n"
-      else
-        stdout << ": "
-      end
+    private def run_postinstall(name : String, script : String) : Nil
+      stdout << "» Running " << name << " postinstall (" << Geode::HOST_PLATFORM << "):\n"
       stdout << script.colorize.light_gray << "\n\n"
 
       status : Process::Status

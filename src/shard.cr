@@ -46,5 +46,17 @@ module Geode
       @dependencies.each { |name, dep| dep.name = name }
       @development.each { |name, dep| dep.name = name }
     end
+
+    def find_target_script(name : String, target : String) : String?
+      if @scripts.keys.any? &.starts_with? "#{name}@"
+        if script = @scripts["#{name}@#{target}"]?
+          script
+        else
+          @scripts[name]?
+        end
+      else
+        @scripts[name]?
+      end
+    end
   end
 end
