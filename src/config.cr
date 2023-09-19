@@ -35,20 +35,19 @@ module Geode
       end
     end
 
-    private class Templates
+    private class Presets
       property author : String?
       property url : String?
       property license : String?
       property vcs : String?
-      property vcs_fallback : String?
 
-      def initialize(@author, @url, @license, @vcs, @vcs_fallback)
+      def initialize(@author, @url, @license, @vcs)
       end
     end
 
     property notices : Hash(String, Bool)
     property metrics : Metrics
-    property templates : Templates
+    property presets : Presets
 
     def self.load : self
       data = INI.parse File.read PATH
@@ -61,27 +60,26 @@ module Geode
         Metrics.new enabled, push
       end
 
-      templates = data["templates"]?.try do |value|
-        Templates.new(
+      presets = data["presets"]?.try do |value|
+        Presets.new(
           value["author"]?,
           value["url"]?,
           value["license"]?,
           value["vcs"]?,
-          value["vcs-fallback"]?
         )
       end
 
-      new notices, metrics, templates
+      new notices, metrics, presets
     rescue File::NotFoundError
       raise Error.new :not_found
     rescue ex : INI::ParseException
       raise Error.new :parse_exception, ex.to_s
     end
 
-    def initialize(notices, metrics, templates)
+    def initialize(notices, metrics, presets)
       @notices = notices || {} of String => Bool
       @metrics = metrics || Metrics.new false, false
-      @templates = templates || Templates.new(nil, nil, nil, nil, nil)
+      @presets = presets || Presets.new(nil, nil, nil, nil)
     end
 
     def save : Nil
@@ -92,12 +90,11 @@ module Geode
             enabled: @metrics.enabled?,
             push:    @metrics.push?,
           },
-          templates: {
-            author:         @templates.author,
-            url:            @templates.url,
-            license:        @templates.license,
-            vcs:            @templates.vcs,
-            "vcs-fallback": @templates.vcs_fallback,
+          presets: {
+            author:  @presets.author,
+            url:     @presets.url,
+            license: @presets.license,
+            vcs:     @presets.vcs,
           },
         }
       end

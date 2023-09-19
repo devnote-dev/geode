@@ -15,7 +15,7 @@ module Geode::Commands
 
       stdout << "system\n".colorize.bold
       stdout << "cache: " << Geode::Config::CACHE_DIR << '\n'
-      stdout << "library: " << Geode::Config::LIBRARY_DIR << '\n'
+      stdout << "library: " << Geode::Config::LIBRARY_DIR << "\n\n"
 
       stdout << "notices\n".colorize.bold
       stdout << "shardbox: " << (config.notices["shardbox"]? || false) << "\n\n"
@@ -24,12 +24,11 @@ module Geode::Commands
       stdout << "enabled: " << config.metrics.enabled? << '\n'
       stdout << "push: " << config.metrics.push? << "\n\n"
 
-      stdout << "templates\n".colorize.bold
-      stdout << "author: " << config.templates.author << '\n'
-      stdout << "url: " << config.templates.url << '\n'
-      stdout << "license: " << config.templates.license << '\n'
-      stdout << "vcs: " << config.templates.vcs << '\n'
-      stdout << "vcs-fallback: " << config.templates.vcs_fallback << '\n'
+      stdout << "presets\n".colorize.bold
+      stdout << "author: " << config.presets.author << '\n'
+      stdout << "url: " << config.presets.url << '\n'
+      stdout << "license: " << config.presets.license << '\n'
+      stdout << "vcs: " << config.presets.vcs << '\n'
     end
 
     class Set < Base
@@ -48,7 +47,7 @@ module Geode::Commands
         value = arguments.get?("value")
 
         case key
-        when "system.cache", "system.library", "system.location"
+        when "system.cache", "system.library"
           error "System paths are not configurable"
           system_exit
         when "notices.shardbox"
@@ -72,16 +71,14 @@ module Geode::Commands
           end
 
           config.metrics.push = value.as_bool
-        when "templates.author"
-          config.templates.author = value.try &.as_s
-        when "templates.url"
-          config.templates.url = value.try &.as_s
-        when "templates.license"
-          config.templates.license = value.try &.as_s
-        when "templates.vcs"
-          config.templates.vcs = value.try &.as_s
-        when "templates.vcs-fallback"
-          config.templates.vcs_fallback = value.try &.as_s
+        when "presets.author"
+          config.presets.author = value.try &.as_s
+        when "presets.url"
+          config.presets.url = value.try &.as_s
+        when "presets.license"
+          config.presets.license = value.try &.as_s
+        when "presets.vcs"
+          config.presets.vcs = value.try &.as_s
         else
           error [
             "Unknown config key: #{key}",
