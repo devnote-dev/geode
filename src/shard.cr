@@ -47,6 +47,10 @@ module Geode
       @development.each { |name, dep| dep.name = name }
     end
 
+    def has_postinstall? : Bool
+      @scripts.keys.any? &.starts_with? "postinstall"
+    end
+
     def find_target_script(name : String, target : String) : String?
       if @scripts.keys.any? &.starts_with? "#{name}@"
         if script = @scripts["#{name}@#{target}"]?

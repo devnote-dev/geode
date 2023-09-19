@@ -10,11 +10,12 @@ module Geode::Commands
         unless you include the '--production' flag.
         DESC
 
-      add_usage "install [-D|--without-development] [--frozen] [--production] [-S|--skip-postinstall]"
+      add_usage "install [-D|--without-development] [--frozen] [--production] [-E|--skip-executables] [-P|--skip-postinstall]"
       add_option 'D', "without-development"
+      add_option 'E', "skip-executables"
       add_option "frozen"
       add_option "production"
-      add_option 'S', "skip-postinstall"
+      add_option 'P', "skip-postinstall"
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -71,7 +72,7 @@ module Geode::Commands
       end
 
       if $?.success?
-        if deps.empty? || options.has? "skip-postinstall"
+        if deps.empty? || (options.has?("skip-executables") && options.has?("skip-postinstall"))
           success "Install completed in #{format_time(Time.monotonic - start)}"
           return
         end
@@ -84,20 +85,57 @@ module Geode::Commands
       Dir.each_child("lib") do |child|
         next if child.starts_with? '.'
         next unless File.exists?(path = Path["lib"] / child / "shard.yml")
-
-        shard = Shard.from_yaml File.read path
-        if shard.scripts.keys.any? &.starts_with? "postinstall"
-          shards << shard
-        end
+        shards << Shard.from_yaml File.read path
       rescue YAML::ParseException
         warn "Failed to parse shard.yml contents for '#{child}'"
       end
 
-      shards.each do |shard|
-        if script = shard.find_target_script "postinstall", Geode::HOST_PLATFORM
-          run_postinstall shard.name, script
-        else
-          warn "No postinstall script available for this platform"
+      unless options.has? "skip-postinstall"
+        shards.select(&.has_postinstall?).each do |shard|
+          if script = shard.find_target_script "postinstall", Geode::HOST_PLATFORM
+            run_postinstall shard.name, script
+          else
+            warn "No postinstall script available for this platform"
+          end
+        end
+      end
+
+      unless options.has? "skip-executables"
+        Dir.mkdir_p "bin"
+
+        shards.reject(&.executables.empty?).each do |shard|
+          shard.executables.each do |exe|
+            src = Path["lib"] / shard.name / "bin" / exe
+
+            {% if flag?(:win32) %}
+              unless File.exists?(src) || exe.ends_with?(".exe")
+                src = Path[src.basename, exe + ".exe"]
+              end
+            {% end %}
+
+            unless File.exists? src
+              warn "Executable '#{exe}' not found for #{shard.name}"
+              next
+            end
+
+            unless File.symlink? src
+              dest = Path["bin", exe].expand
+
+              begin
+                File.delete dest if File.exists? dest
+                File.symlink src, dest
+                stdout.puts "» Linked executable '#{exe}'"
+              rescue
+                begin
+                  # FIXME: copying doesn't work here for some reason
+                  File.rename src, dest
+                  stdout.puts "» Added executable '#{exe}'"
+                rescue
+                  error "Failed to link #{shard.name} executable '#{exe}'"
+                end
+              end
+            end
+          end
         end
       end
 
