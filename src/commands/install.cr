@@ -1,7 +1,5 @@
 module Geode::Commands
   class Install < Base
-    private TARGET = {{ flag?(:win32) ? "windows" : "linux" }}
-
     def setup : Nil
       @name = "install"
       @summary = "installs dependencies from shard.yml"
@@ -10,21 +8,33 @@ module Geode::Commands
         unless you include the '--production' flag.
         DESC
 
-      add_usage "install [-D|--without-development] [--frozen] [--production] [-E|--skip-executables] [-P|--skip-postinstall]"
+      add_usage "install [-D|--without-development] [-E|--skip-executables] [--frozen]" \
+                "\n\t[-j|--jobs <n>] [--local] [--production] [-P|--skip-postinstall]"
+
       add_option 'D', "without-development"
       add_option 'E', "skip-executables"
       add_option "frozen"
+      add_option 'j', "jobs", type: :single
+      add_option "local"
       add_option "production"
       add_option 'P', "skip-postinstall"
     end
 
-    def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      super arguments, options
+    def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool
+      return false unless super
+
+      if options.has? "jobs"
+        # TODO: fix `as_i32?` upstream
+        unless options.get("jobs").as_s.to_i?
+          error "Expected flag 'jobs' to be an integer, not a string"
+          system_exit
+        end
+      end
 
       nodev = options.has? "without-development"
       frozen = options.has? "frozen"
       production = options.has? "production"
-      return unless (nodev || frozen) && production
+      return true unless (nodev || frozen) && production
 
       flags = [] of String
       flags << "without-development" if nodev
@@ -35,6 +45,8 @@ module Geode::Commands
         "production",
         %(  ↳ implies #{flags.join " and "}),
       ]
+
+      true
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -55,8 +67,12 @@ module Geode::Commands
       args = %w[install --skip-executables --skip-postinstall]
       args << "--frozen" if options.has? "frozen"
       args << "--no-color" if options.has? "no-color"
-      args << "--without-development" if options.has? "without-development"
+      if value = options.get?("jobs").try &.as_i
+        args << "--jobs=#{value}"
+      end
+      args << "--local" if options.has? "local"
       args << "--production" if options.has? "production"
+      args << "--without-development" if options.has? "without-development"
 
       start = Time.monotonic
       deps = [] of String
