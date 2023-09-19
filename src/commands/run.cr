@@ -85,12 +85,11 @@ module Geode::Commands
 
       status : Process::Status
       taken : String
-      err = IO::Memory.new
       start = Time.monotonic
 
       {% begin %}
         {% if flag?(:win32) %}begin{% end %}
-          status = Process.run(script, shell: true, output: stdout, error: err)
+          status = Process.run(script, shell: true, output: stdout, error: stderr)
           taken = format_time(Time.monotonic - start)
         {% if flag?(:win32) %}
           rescue ex : File::NotFoundError
@@ -108,8 +107,7 @@ module Geode::Commands
       if status.success?
         success "Completed in #{taken}"
       else
-        error "Script '#{name}' failed (#{taken}):"
-        stderr.puts err
+        error "Script '#{name}' failed (#{taken})"
       end
     end
   end

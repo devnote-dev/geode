@@ -79,19 +79,22 @@ module Geode::Commands
     end
 
     private def build(name : String, main : String, flags : String?, pipe : Bool) : Nil
-      err = IO::Memory.new
       command = ["build", "-o", (Path["bin"] / name).to_s, main]
       command.concat flags.split if flags
 
       start = Time.monotonic
-      status = Process.run("crystal", command, output: pipe ? stdout : Process::Redirect::Close, error: err)
+      status = Process.run(
+        "crystal",
+        command,
+        output: pipe ? stdout : Process::Redirect::Close,
+        error: pipe ? stderr : Process::Redirect::Close
+      )
       taken = format_time(Time.monotonic - start)
 
       if status.success?
         success "Target '#{name}' built in #{taken}"
       else
-        error "Target '#{name}' failed (#{taken}):"
-        stderr.puts err
+        error "Target '#{name}' failed (#{taken})"
       end
     end
   end
