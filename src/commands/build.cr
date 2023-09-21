@@ -5,11 +5,10 @@ module Geode::Commands
       @summary = "builds one or more targets from shard.yml"
       @description = <<-DESC
         Builds one or more specified targets from a shard.yml file. If no targets are
-        specified, the first target defined in the shard.yml file is chosen. The output
-        of the build from the compiler can be logged by specifying the '--pipe' flag.
-        You should avoid using this flag if you are building multiple targets as they
-        are built concurrently, meaning that the output of the targets will be logged at
-        the same time.
+        specified, all defined targets will be built concurrently. The output of the
+        build from the compiler can be logged by specifying the '--pipe' flag. Note that
+        this flag is automatically disabled when building multiple targets because of
+        output log conficts.
         DESC
 
       add_usage "build [-p|--pipe] [targets...]"
@@ -35,43 +34,39 @@ module Geode::Commands
 
       pipe = options.has? "pipe"
       if targets = arguments.get?("targets").try &.as_set
-        known, unknown = targets.partition { |t| shard.targets.has_key? t }
+        targets, unknown = targets.partition { |t| shard.targets.has_key? t }
         unless unknown.empty?
           warn ["Skipping unknown targets:", unknown.join(", ")]
         end
-
-        warn "Output piping is not recommended for multiple targets" if pipe && known.size > 1
-
-        wait = Channel(Nil).new
-        count = 0
-
-        known.each do |name|
-          target = shard.targets[name]
-          unless target.has_key? "main"
-            error "Target '#{name}' missing field 'main'; skipping"
-            next
-          end
-
-          stdout.puts "» Building: #{name}"
-          count += 1
-
-          spawn do
-            build name, target["main"], target["flags"]?, pipe
-            wait.send nil
-          end
-        end
-
-        count.times { wait.receive }
       else
-        name, target = shard.targets.first
+        targets = shard.targets.keys
+      end
+
+      if targets.size > 1 && pipe
+        warn "Output piping is disabled for multiple targets"
+        pipe = false
+      end
+
+      wait = Channel(Nil).new
+      count = 0
+
+      targets.each do |name|
+        target = shard.targets[name]
         unless target.has_key? "main"
-          error "Missing 'main' field for target: #{name}"
-          system_exit
+          error "Target '#{name}' missing field 'main'; skipping"
+          next
         end
 
         stdout.puts "» Building: #{name}"
-        build name, target["main"], target["flags"]?, pipe
+        count += 1
+
+        spawn do
+          build name, target["main"], target["flags"]?, pipe
+          wait.send nil
+        end
       end
+
+      count.times { wait.receive }
     rescue File::NotFoundError
       error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
     rescue ex : YAML::ParseException
@@ -94,7 +89,9 @@ module Geode::Commands
       if status.success?
         success "Target '#{name}' built in #{taken}"
       else
-        stderr.puts err.to_s unless pipe
+        unless pipe
+          stderr << '\n' << err << '\n'
+        end
         error "Target '#{name}' failed (#{taken})"
       end
     end
