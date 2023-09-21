@@ -87,13 +87,14 @@ module Geode::Commands
         "crystal",
         command,
         output: pipe ? stdout : Process::Redirect::Close,
-        error: pipe ? stderr : Process::Redirect::Close
+        error: pipe ? stderr : (err = IO::Memory.new)
       )
       taken = format_time(Time.monotonic - start)
 
       if status.success?
         success "Target '#{name}' built in #{taken}"
       else
+        stderr.puts err.to_s unless pipe
         error "Target '#{name}' failed (#{taken})"
       end
     end
