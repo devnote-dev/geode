@@ -29,12 +29,22 @@ module Geode::Commands
       end
 
       name = Path[Dir.current].basename.underscore
-      return write_shard name if options.has? "skip"
+      config = Geode::Config.load rescue Geode::Config.new(nil, nil, nil)
+      author = config.presets.author
+      crystal = begin
+        version = `crystal version`.split(' ', 3)[1]
+        ">= #{version}"
+      rescue
+        ">= #{Crystal::VERSION}"
+      end
+      license = config.presets.license || "MIT"
+
+      return write_shard(name, nil, author, "0.1.0", crystal, license) if options.has? "skip"
 
       unless STDIN.tty?
         # FIXME: might need to add logic for dumb terminals vs pipes
         # warn "This console does not have interactive support; creating the file as normal"
-        return write_shard name
+        return write_shard(name, nil, author, "0.1.0", crystal, license)
       end
 
       Process.on_interrupt do
@@ -46,7 +56,7 @@ module Geode::Commands
         Welcome to the #{"Geode interactive shard setup".colorize.magenta}!
         This setup will walk you through creating a new shard.yml file.
         If you want to skip this setup, exit and run 'geode init --skip'.
-        Press '^#{CHAR}' (#{COMMAND} + #{CHAR}) to exit at any time.
+        Press '^#{CHAR}' (#{COMMAND}+#{CHAR}) to exit at any time.
         INTRO
       stdout.puts
 
@@ -62,54 +72,79 @@ module Geode::Commands
         description = input
       end
 
-      version = "0.1.0"
-      prompt("version: (0.1.0) ") do |input|
-        # TODO: add validation for this
-        version = input
+      message = "author: "
+      message += "(#{author}) " if author.presence
+      prompt(message) do |input|
+        author = input
       end
 
-      crystal = Crystal::VERSION
+      version = "0.1.0"
+      prompt("version: (0.1.0) ") do |input|
+        version = SemanticVersion.parse(input).to_s
+      end
+
       prompt("crystal: (#{crystal}) ") do |input|
-        # TODO: add validation for this too
+        # TODO: needs version requirement checks
         crystal = input
       end
 
-      license = "MIT"
-      prompt("license: (MIT) ") do |input|
+      prompt("license: (#{license}) ") do |input|
         # TODO: add validation for this as well...
         license = input
       end
 
       stdout.puts
-      write_shard(name, description, version, crystal, license)
+      write_shard(name, description, author, version, crystal, license)
     end
 
-    private def write_shard(name : String, description : String? = nil, version : String = "0.1.0",
-                            crystal : String = Crystal::VERSION, license : String = "MIT") : Nil
-      unless Shard::NAME_REGEX.matches? name
-        name = "my_project"
-      end
+    private def write_shard(name : String, description : String?, author : String?,
+                            version : String, crystal : String, license : String?) : Nil
+      name = "my_project" unless Shard::NAME_REGEX.matches? name
       description ||= "A short description of #{name}"
 
-      File.write("shard.yml", <<-YAML)
-        name: #{name}
-        description: #{description}
+      File.open("shard.yml", mode: "w") do |file|
+        file << "name: " << name << '\n'
+        file << "description: "
 
-        version: #{version}
+        if description.size > 60
+          file << "|\n"
+          lines = [] of String
+          current = IO::Memory.new
 
-        dependencies:
-          kemal:
-            github: kemalcr/kemal
+          description.split(' ').each do |word|
+            if word.size + current.size > 60
+              lines << current.to_s.strip
+              current.clear
+            end
+            current << word << ' '
+          end
 
-        development_dependencies:
-          ameba:
-            github: crystal-ameba/ameba
-            version: ~> 1.4.0
+          lines << current.to_s.strip unless current.empty?
+          lines.each do |line|
+            file << "  " << line << '\n'
+          end
+          file << '\n'
+        else
+          file << description << '\n'
+        end
 
-        crystal: #{crystal}
+        if author.presence
+          file << "authors:\n  - " << author << '\n'
+        end
 
-        license: #{license}
-        YAML
+        file << "\nversion: " << version << '\n'
+        file << "crystal: '" << crystal << "'\n"
+        file << "license: " << (license || "MIT") << "\n\n"
+
+        file << <<-YAML
+          development_dependencies:
+            ameba:
+              github: crystal-ameba/ameba
+              version: ~> 1.5.0
+          YAML
+
+        file << '\n'
+      end
 
       success "Created shard.yml"
     end
