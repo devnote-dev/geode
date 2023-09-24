@@ -22,6 +22,18 @@ module Geode
 
     NAME_REGEX = /\A[a-z][a-z0-9_-]+\z/
 
+    class Error < Exception
+      enum Code
+        NotFound
+        ParseException
+      end
+
+      getter code : Code
+
+      def initialize(@code, @message = nil)
+      end
+    end
+
     property name : String
     property description : String?
     property authors : Array(String)?
@@ -40,6 +52,10 @@ module Geode
 
     def self.load_local : self
       from_yaml File.read "shard.yml"
+    rescue File::NotFoundError
+      raise Error.new :not_found
+    rescue ex : YAML::ParseException
+      raise Error.new :parse_exception, ex.to_s
     end
 
     def name_dependencies : Nil

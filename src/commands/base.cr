@@ -41,6 +41,13 @@ module Geode::Commands
         in .parse_exception?
           error ["Failed to parse config:", ex.message.as(String)]
         end
+      when Geode::Shard::Error
+        case ex.code
+        in .not_found?
+          error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
+        in .parse_exception?
+          error ["Failed to parse shard.yml contents:", ex.message.as(String)]
+        end
       when SystemExit
         raise ex
       else

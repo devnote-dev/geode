@@ -20,8 +20,8 @@ module Geode::Commands
       dependencies = begin
         shard = Shard.load_local
         shard.dependencies.merge shard.development
-      rescue ex : YAML::ParseException
-        warn ["Failed to parse shard.yml contents:", ex.to_s]
+      rescue Shard::Error
+        warn "Failed to load shard.yml"
         {} of String => Dependency
       end
 

@@ -72,10 +72,6 @@ module Geode::Commands
       end
 
       run_script script
-    rescue File::NotFoundError
-      error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
-    rescue ex : YAML::ParseException
-      error ["Failed to parse shard.yml contents:", ex.to_s]
     end
 
     private def run_script(script : String) : Nil
