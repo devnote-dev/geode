@@ -90,6 +90,7 @@ module Geode::Commands
         config.save
       rescue TypeCastError
         error "Expected key '#{key}' to be a boolean, not a string"
+        system_exit
       end
     end
 

@@ -92,6 +92,7 @@ module Geode::Commands
       end
     rescue ex : YAML::ParseException
       error ["Failed to parse shard.yml contents:", ex.to_s]
+      system_exit
     end
   end
 end
