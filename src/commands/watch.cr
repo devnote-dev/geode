@@ -19,14 +19,7 @@ module Geode::Commands
         system_exit
       end
 
-      unless Dir.exists? "bin"
-        begin
-          Dir.mkdir "bin"
-        rescue ex
-          error ["Failed to create bin directory:", ex.to_s]
-          system_exit
-        end
-      end
+      Dir.mkdir_p "bin"
 
       name = arguments.get?("target").try(&.as_s) || shard.targets.first_key
       unless target = shard.targets[name]?
@@ -66,7 +59,7 @@ module Geode::Commands
 
       if should_build
         stdout.puts "» Building: #{name}"
-        proc = new_process name, target["main"], target["args"]?, pipe, err
+        proc = new_process name, target["main"], target["flags"]?, pipe, err
         start = Time.monotonic
         status = proc.wait
         taken = format_time(Time.monotonic - start)
@@ -74,7 +67,7 @@ module Geode::Commands
         if status.success?
           success "Target built in #{taken}"
         else
-          error "Target failed (#{taken}):"
+          error "Target failed (#{taken}):\n"
           stderr.puts err
         end
       end
@@ -108,7 +101,7 @@ module Geode::Commands
         end
 
         stdout.puts "» Rebuilding (#{count} file change#{"s" if count > 1})"
-        proc = new_process name, target["main"], target["args"]?, pipe, err
+        proc = new_process name, target["main"], target["flags"]?, pipe, err
 
         spawn do
           start = Time.monotonic
@@ -119,8 +112,8 @@ module Geode::Commands
             success "Target rebuilt in #{taken}"
             stdout.puts "» Waiting for file changes..."
           elsif status.normal_exit?
-            error "Target failed (#{taken}):"
             stderr.puts err
+            error "Target failed (#{taken})"
             stdout.puts "» Waiting for file changes..."
           end
         end
@@ -134,14 +127,17 @@ module Geode::Commands
       files.map { |path| File.info(path).modification_time.to_unix }
     end
 
-    private def new_process(name : String, main : String, args : String?, pipe : Bool, err : IO::Memory) : Process
+    private def new_process(name : String, main : String, flags : String?, pipe : Bool, err : IO::Memory) : Process
       command = ["build", "-o", (Path["bin"] / name).to_s, main]
-      if extra = args
-        command.concat extra.split
-      end
+      command.concat flags.split if flags
       err.clear
 
-      Process.new("crystal", command, output: pipe ? stdout : Process::Redirect::Close, error: err)
+      Process.new(
+        "crystal",
+        command,
+        output: pipe ? stdout : Process::Redirect::Close,
+        error: pipe ? stderr : err
+      )
     end
   end
 end
