@@ -83,21 +83,19 @@ module Geode::Commands
       taken : String
       start = Time.monotonic
 
-      {% begin %}
-        {% if flag?(:win32) %}begin{% end %}
-          status = Process.run(script, shell: true, output: stdout, error: stderr)
-          taken = format_time(Time.monotonic - start)
-        {% if flag?(:win32) %}
-          rescue ex : File::NotFoundError
-            error [
-              "Failed to start process for script:",
-              ex.to_s,
-              "If you are using command prompt builtins or extensions,",
-              "make sure the script is prefixed with 'cmd.exe /C'",
-            ]
-            system_exit
+      {% if flag?(:win32) %}
+        begin
+          temp = File.tempfile("geode-tmp-run", ".cmd") do |file|
+            file << script
           end
-        {% end %}
+          status = Process.run(temp.path, output: stdout, error: stderr)
+          taken = format_time(Time.monotonic - start)
+        ensure
+          temp.try &.delete
+        end
+      {% else %}
+        status = Process.run(script, shell: true, output: stdout, error: stderr)
+        taken = format_time(Time.monotonic - start)
       {% end %}
 
       if status.success?

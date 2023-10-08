@@ -24,7 +24,7 @@ development_dependencies:
 
 scripts:
   clean@linux: rm bin/geode
-  clean@windows: cmd /c del bin\geode.exe bin\geode.pdb
+  clean@windows: del bin\geode.exe bin\geode.pdb
 
 targets:
   geode:
