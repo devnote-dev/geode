@@ -8,6 +8,10 @@ shards:
     git: https://github.com/devnote-dev/cling.git
     version: 3.0.0+git.commit.c8975969bab1104be2ff9d715f2197dee6e4dd18
 
+  license:
+    git: https://github.com/devnote-dev/license.git
+    version: 0.1.0
+
   lua:
     git: https://github.com/veelenga/lua.cr.git
     version: 0.2.0+git.commit.e8c9548a93cf6e6d7443364c5a8e5ee090ff74ec

@@ -13,6 +13,9 @@ dependencies:
     github: devnote-dev/cling
     branch: main
 
+  license:
+    github: devnote-dev/license
+
   lua:
     github: veelenga/lua.cr
     branch: master
