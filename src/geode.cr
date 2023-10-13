@@ -5,6 +5,7 @@ require "file_utils"
 require "ini"
 require "license"
 require "lua"
+require "trigram"
 require "yaml"
 
 require "./commands/*"
