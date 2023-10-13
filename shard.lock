@@ -16,3 +16,7 @@ shards:
     git: https://github.com/veelenga/lua.cr.git
     version: 0.2.0+git.commit.e8c9548a93cf6e6d7443364c5a8e5ee090ff74ec
 
+  trigram:
+    git: https://github.com/devnote-dev/trigram.git
+    version: 0.1.0+git.commit.57df0066d2508d9b472be40babd3571b7b5bd772
+
