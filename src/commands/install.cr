@@ -134,21 +134,13 @@ module Geode::Commands
               next
             end
 
-            unless File.symlink? src
-              dest = Path["bin", exe].expand
-
+            dest = Path["bin", exe].expand
+            unless File.exists? dest
               begin
-                File.delete dest if File.exists? dest
-                File.symlink src, dest
-                stdout.puts "» Linked executable '#{exe}'"
+                File.copy src, dest
+                stdout.puts "» Added executable '#{exe}'"
               rescue
-                begin
-                  # FIXME: copying doesn't work here for some reason
-                  File.rename src, dest
-                  stdout.puts "» Added executable '#{exe}'"
-                rescue
-                  error "Failed to link #{shard.name} executable '#{exe}'"
-                end
+                error "Failed to link #{shard.name} executable '#{exe}'"
               end
             end
           end
