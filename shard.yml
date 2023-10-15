@@ -15,6 +15,7 @@ dependencies:
 
   license:
     github: devnote-dev/license
+    branch: main
 
   lua:
     github: veelenga/lua.cr

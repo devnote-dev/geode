@@ -10,7 +10,7 @@ shards:
 
   license:
     git: https://github.com/devnote-dev/license.git
-    version: 0.1.0
+    version: 0.1.0+git.commit.5d70576e0aab9dbaf9f444710ba3012d5f84e19c
 
   lua:
     git: https://github.com/veelenga/lua.cr.git
