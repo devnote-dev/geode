@@ -20,10 +20,6 @@ module Geode::Commands
       stdout << "notices\n".colorize.bold
       stdout << "shardbox: " << (config.notices["shardbox"]? || false) << "\n\n"
 
-      stdout << "metrics\n".colorize.bold
-      stdout << "enabled: " << config.metrics.enabled? << '\n'
-      stdout << "push: " << config.metrics.push? << "\n\n"
-
       stdout << "presets\n".colorize.bold
       stdout << "author: " << config.presets.author << '\n'
       stdout << "url: " << config.presets.url << '\n'
@@ -57,20 +53,6 @@ module Geode::Commands
           end
 
           config.notices["shardbox"] = value.as_bool
-        when "metrics.enabled"
-          if value.nil?
-            error "A value is required for this key"
-            system_exit
-          end
-
-          config.metrics.enabled = value.as_bool
-        when "metrics.push"
-          if value.nil?
-            error "A value is required for this key"
-            system_exit
-          end
-
-          config.metrics.push = value.as_bool
         when "presets.author"
           config.presets.author = value.try &.as_s
         when "presets.url"
@@ -114,10 +96,10 @@ module Geode::Commands
             _ = INI.parse File.read Geode::Config::PATH
           rescue INI::ParseException
             warn "Failed to parse config, setting to default"
-            Geode::Config.new(nil, nil, nil).save
+            Geode::Config.new(nil, nil).save
           end
         else
-          Geode::Config.new(nil, nil, nil).save
+          Geode::Config.new(nil, nil).save
         end
       end
     end
