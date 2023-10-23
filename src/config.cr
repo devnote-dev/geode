@@ -37,13 +37,27 @@ module Geode
       end
     end
 
-    property notices : Hash(String, Bool)
+    private class Notices
+      property? shardbox : Bool
+      property? crystaldoc : Bool
+
+      def initialize(@shardbox, @crystaldoc)
+      end
+    end
+
+    property notices : Notices
     property presets : Presets
 
     def self.load : self
       data = INI.parse File.read PATH
 
-      notices = data["notices"]?.try &.transform_values { |v| v == "true" }
+      notices = data["notices"]?.try do |value|
+        Notices.new(
+          value["shardbox"]?.try { |v| v == "true" } || false,
+          value["crystaldoc"]?.try { |v| v == "true" } || false,
+        )
+      end
+
       presets = data["presets"]?.try do |value|
         Presets.new(
           value["author"]?,
@@ -61,14 +75,17 @@ module Geode
     end
 
     def initialize(notices, presets)
-      @notices = notices || {} of String => Bool
+      @notices = notices || Notices.new(false, false)
       @presets = presets || Presets.new(nil, nil, nil, nil)
     end
 
     def save : Nil
       File.open(PATH, mode: "w") do |file|
         INI.build file, {
-          notices: @notices,
+          notices: {
+            shardbox:   @notices.shardbox?,
+            crystaldoc: @notices.crystaldoc?,
+          },
           presets: {
             author:  @presets.author,
             url:     @presets.url,

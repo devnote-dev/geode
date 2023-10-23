@@ -18,7 +18,8 @@ module Geode::Commands
       stdout << "library: " << Geode::Config::LIBRARY_DIR << "\n\n"
 
       stdout << "notices\n".colorize.bold
-      stdout << "shardbox: " << (config.notices["shardbox"]? || false) << "\n\n"
+      stdout << "shardbox: " << config.notices.shardbox? << '\n'
+      stdout << "crystaldoc: " << config.notices.crystaldoc? << "\n\n"
 
       stdout << "presets\n".colorize.bold
       stdout << "author: " << config.presets.author << '\n'
@@ -52,7 +53,14 @@ module Geode::Commands
             system_exit
           end
 
-          config.notices["shardbox"] = value.as_bool
+          config.notices.shardbox = value.as_bool
+        when "notices.crystaldoc"
+          if value.nil?
+            error "A value is required for this key"
+            system_exit
+          end
+
+          config.notices.crystaldoc = value.as_bool
         when "presets.author"
           config.presets.author = value.try &.as_s
         when "presets.url"
