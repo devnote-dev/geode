@@ -79,7 +79,7 @@ module Geode::Commands
 
       Process.run(shards, args) do |proc|
         while message = proc.output.gets
-          if message.includes? "Using"
+          if message.includes?("Installing") || message.includes?("Using")
             deps << message.split(' ', 3)[1]
           end
           stdout.puts message
