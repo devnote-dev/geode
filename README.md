@@ -26,7 +26,7 @@ Expand-Archive .\geode.zip .
 
 ### From Source
 
-[Crystal](https://crystal-lang.org/) version 1.8.0 or higher is required to build Geode. Make sure to add the `bin/` directory to `PATH` or move the Geode binaries to a directory in `PATH`.
+[Crystal](https://crystal-lang.org/) version 1.9.0 or higher is required to build Geode. Make sure to add the `bin/` directory to `PATH` or move the Geode binaries to a directory in `PATH`.
 
 ```sh
 git clone https://github.com/devnote-dev/geode
