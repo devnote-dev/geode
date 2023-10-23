@@ -67,8 +67,8 @@ module Geode::Commands
         if status.success?
           success "Target built in #{taken}"
         else
-          error "Target failed (#{taken}):\n"
           stderr.puts err
+          error "Target failed (#{taken})"
         end
       end
 
