@@ -49,7 +49,9 @@ module Geode
       add_command Commands::Licenses.new
       add_command Commands::Run.new
       add_command Commands::Config.new
-      add_command Commands::Template.new
+      {% if flag?(:templates) %}
+        add_command Commands::Template.new
+      {% end %}
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
