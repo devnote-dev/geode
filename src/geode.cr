@@ -52,6 +52,7 @@ module Geode
       {% if flag?(:templates) %}
         add_command Commands::Template.new
       {% end %}
+      add_command Commands::Help.new
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
