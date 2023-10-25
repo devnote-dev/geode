@@ -11,8 +11,9 @@ module Geode::Commands
         output log conficts.
         DESC
 
-      add_usage "build [-p|--pipe] [targets...]"
+      add_usage "build [--dry] [-p|--pipe] [targets...]"
       add_argument "targets", description: "the targets to build", multiple: true
+      add_option "dry", description: "build as a dry-run (does not create a new binary)"
       add_option 'p', "pipe", description: "pipe the build output"
     end
 
@@ -32,7 +33,6 @@ module Geode::Commands
         end
       end
 
-      pipe = options.has? "pipe"
       if targets = arguments.get?("targets").try &.as_set
         targets, unknown = targets.partition { |t| shard.targets.has_key? t }
         unless unknown.empty?
@@ -42,6 +42,8 @@ module Geode::Commands
         targets = shard.targets.keys
       end
 
+      dry = options.has? "dry"
+      pipe = options.has? "pipe"
       if targets.size > 1 && pipe
         warn "Output piping is disabled for multiple targets"
         pipe = false
@@ -61,7 +63,7 @@ module Geode::Commands
         count += 1
 
         spawn do
-          build name, target["main"], target["flags"]?, pipe
+          build name, target["main"], target["flags"]?, dry, pipe
           wait.send nil
         end
       end
@@ -69,8 +71,9 @@ module Geode::Commands
       count.times { wait.receive }
     end
 
-    private def build(name : String, main : String, flags : String?, pipe : Bool) : Nil
+    private def build(name : String, main : String, flags : String?, dry : Bool, pipe : Bool) : Nil
       command = ["build", "-o", (Path["bin"] / name).to_s, main]
+      command << "--no-codegen" if dry
       command.concat flags.split if flags
 
       start = Time.monotonic

@@ -4,9 +4,10 @@ module Geode::Commands
       @name = "watch"
       @summary = "builds and watches a target from shard.yml"
 
-      add_usage "watch [-c|--check-start] [-i|--interval <time>] [-p|--pipe] [-s|--skip-start] [target]"
+      add_usage "watch [-c|--check-start] [--dry] [-i|--interval <time>] [-p|--pipe] [-s|--skip-start] [target]"
       add_argument "target", description: "the name of the target"
       add_option 'c', "check-start", description: "check for the target executable at the start"
+      add_option "dry", description: "build as a dry-run (does not create a new binary)"
       add_option 'i', "interval", description: "the wait interval in seconds", type: :single, default: 0.5
       add_option 'p', "pipe", description: "pipe the build output"
       add_option 's', "skip-start", description: "skip building at the start"
@@ -44,6 +45,7 @@ module Geode::Commands
         system_exit
       end
 
+      dry = options.has? "dry"
       pipe = options.has? "pipe"
       err = IO::Memory.new
       proc = Process.new "echo" # dummy process for variable access
@@ -59,7 +61,7 @@ module Geode::Commands
 
       if should_build
         stdout.puts "» Building: #{name}"
-        proc = new_process name, target["main"], target["flags"]?, pipe, err
+        proc = new_process name, target["main"], target["flags"]?, dry, pipe, err
         start = Time.monotonic
         status = proc.wait
         taken = format_time(Time.monotonic - start)
@@ -101,7 +103,7 @@ module Geode::Commands
         end
 
         stdout.puts "» Rebuilding (#{count} file change#{"s" if count > 1})"
-        proc = new_process name, target["main"], target["flags"]?, pipe, err
+        proc = new_process name, target["main"], target["flags"]?, dry, pipe, err
 
         spawn do
           start = Time.monotonic
@@ -127,8 +129,10 @@ module Geode::Commands
       files.map { |path| File.info(path).modification_time.to_unix }
     end
 
-    private def new_process(name : String, main : String, flags : String?, pipe : Bool, err : IO::Memory) : Process
+    private def new_process(name : String, main : String, flags : String?, dry : Bool,
+                            pipe : Bool, err : IO::Memory) : Process
       command = ["build", "-o", (Path["bin"] / name).to_s, main]
+      command << "--no-codegen" if dry
       command.concat flags.split if flags
       err.clear
 
