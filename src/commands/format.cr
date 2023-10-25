@@ -49,14 +49,16 @@ module Geode::Commands
       end
 
       str << "Options".colorize.magenta << '\n'
-      max_size = 2 + command.options.max_of { |n, o| 2 + n.size + (o.short ? 2 : 0) }
+      max_size = 6 + command.options.keys.max_of &.size
 
       command.options.each do |name, option|
-        name_size = 2 + option.long.size + (option.short ? 2 : -2)
+        name_size = 2 + option.long.size
 
         str << "»  "
         if short = option.short
           str << '-' << short << ", "
+        else
+          str << "    "
         end
         str << "--" << name
         str << " " * (max_size - name_size)
