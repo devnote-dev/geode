@@ -21,36 +21,61 @@ module Geode::Commands
       libs = get_libraries.select { |k| shard.dependencies.has_key? k }
       return if libs.empty?
 
-      paths = [] of String
+      paths = {} of String => Array(String)
       libs.each do |child|
-        paths += find_licenses Path["lib"] / child
+        paths[child] = find_licenses Path["lib"] / child
       end
+      return if paths.empty?
 
       trigram = Trigram.new do |t|
         License.licenses.each { |l| t.add l.title }
       end
-      licenses = [] of License
+      found = Hash(String, Array(License)).new # { [] of License }
 
-      paths.each do |path|
-        header = File
-          .read_lines(path)
-          .find!(&.presence)
-          .gsub(/^The|Version\s?|\(.*\)/, "")
-          .strip
+      paths.each do |name, arr|
+        licenses = [] of License
 
-        res = trigram.query header
-        next if res.empty?
+        arr.each do |path|
+          header = File
+            .read_lines(path)
+            .find!(&.presence)
+            .gsub(/^The|Version\s?|\(.*\)/, "")
+            .strip
 
-        licenses << License.licenses[res[0] - 1]
+          res = trigram.query header
+          next if res.empty?
+
+          licenses << License.licenses[res[0] - 1]
+        end
+
+        found[name] = licenses
       end
 
-      unless licenses.size == paths.size
-        warn "Could not resolve licenses for #{paths.size - licenses.size} shards"
+      found.each do |name, licenses|
+        stdout << name << ":\n"
+        if licenses.empty?
+          stdout << "• none found"
+        else
+          licenses.each do |license|
+            stdout << "• " << license.title << '\n'
+          end
+        end
+        stdout << '\n'
       end
 
-      licenses.each do |license|
-        stdout << "• " << license.title << '\n'
-      end
+      total = found.values.flatten
+      stdout << emoji_for(total.any? do |l|
+        l.permissions.private_use? && !l.conditions.disclose_source?
+      end) << " allows closed-source\n"
+
+      # TODO: needs refining...
+      stdout << emoji_for(total.any? do |l|
+        l.permissions.commercial_use? && l.permissions.distribution?
+      end) << " allows distribution\n"
+
+      stdout << emoji_for(total.any? &.conditions.include_copyright?) << " requires copyright\n"
+      stdout << emoji_for(total.any? &.conditions.network_use_disclose?) << " requires network use disclosure\n"
+      stdout << emoji_for(total.any? &.conditions.same_license?) << " requires same license\n"
     end
 
     private def get_libraries : Array(String)
@@ -87,6 +112,14 @@ module Geode::Commands
       end
 
       paths
+    end
+
+    private def emoji_for(cond : Bool)
+      if cond
+        "✔".colorize.green
+      else
+        "✘".colorize.red
+      end
     end
   end
 end
