@@ -4,6 +4,11 @@ module Geode::Commands
   class Licenses < Base
     def setup : Nil
       @name = "licenses"
+      @summary = "gets shard licenses information"
+      @description = <<-DESC
+        Gets licening information from installed shards. This will also list general
+        conditions permitted by the licenses.
+        DESC
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
