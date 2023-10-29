@@ -8,6 +8,8 @@ module Geode::Commands
         transitive dependencies will also be listed even if they are not directly
         required by your project.
         DESC
+
+      add_option "tree", description: "list recursively in tree format"
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -17,40 +19,85 @@ module Geode::Commands
       end
       return unless Dir.exists? "lib"
 
-      dependencies = begin
-        shard = Shard.load_local
-        shard.dependencies.merge shard.development
-      rescue Shard::Error
-        warn "Failed to load shard.yml"
-        {} of String => Dependency
-      end
+      root = Shard.load_local
+      deps = root.load_dependency_shards
+      dev = root.load_development_shards
 
-      libs = get_libraries
-      return if libs.empty?
+      str = String.build do |io|
+        if options.has? "tree"
+          deps.each do |spec|
+            io << spec.name << ": " << spec.version << '\n'
+            format(io, spec, 0, false)
+          end
 
-      libs.each do |name, version|
-        stdout << "• " << name << ": " << version
-        unless dependencies.has_key? name
-          stdout << " (untracked)".colorize.light_gray
+          dev.each do |spec|
+            io << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
+            format(io, spec, 0, false)
+          end
+        else
+          untracked = [] of {String, String}
+          Dir.each_child("lib") do |child|
+            next if child.starts_with? '.'
+            next if deps.find { |d| d.name == child } || dev.find { |d| d.name == child }
+            next unless File.exists?(path = Path["lib", child, "shard.yml"])
+
+            shard = Shard.from_yaml File.read path
+            untracked << {shard.name, shard.version}
+          end
+
+          deps.each do |spec|
+            io << spec.name << ": " << spec.version << '\n'
+          end
+
+          dev.each do |spec|
+            io << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
+          end
+
+          untracked.each do |(name, version)|
+            io << name << ": " << version << " (untracked)".colorize.yellow << '\n'
+          end
         end
-        stdout << '\n'
       end
+
+      stdout.puts str
     end
 
-    private def get_libraries : Hash(String, String)
-      libs = {} of String => String
+    private def format(io : IO, shard : Shard, level : Int32, join : Bool) : Nil
+      io << " " * level
+      io << "│  " if join
 
-      Dir.each_child("lib") do |child|
-        next if child.starts_with? '.'
-        next unless File.exists?(path = Path["lib"] / child / "shard.yml")
+      deps = shard.load_dependency_shards
+      dev = shard.load_development_shards
 
-        shard = Shard.from_yaml File.read path
-        libs[shard.name] = shard.version
-      rescue YAML::ParseException
-        warn "Failed to parse shard.yml contents for '#{child}'"
+      deps.each do |spec|
+        unless deps.empty? && dev.empty?
+          if deps.size > 1 || dev.size > 1
+            io << " ├─ "
+          else
+            io << " └─ "
+          end
+        end
+        io << spec.name << ": " << spec.version << '\n'
+
+        if spec.dependencies.size > 0 || spec.development.size > 0
+          format(io, spec, level + 1, deps.size > 1)
+        end
       end
 
-      libs
+      dev.each do |spec|
+        unless deps.empty? && dev.empty?
+          if deps.size > 1 || dev.size > 1
+            io << " ├─ "
+          else
+            io << " └─ "
+          end
+        end
+        io << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
+
+        if spec.dependencies.size > 0 || spec.development.size > 0
+          format(io, spec, level + 1, dev.size > 1)
+        end
+      end
     end
   end
 end
