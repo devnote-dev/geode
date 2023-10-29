@@ -27,12 +27,12 @@ module Geode::Commands
         if options.has? "tree"
           deps.each do |spec|
             io << spec.name << ": " << spec.version << '\n'
-            format(io, spec, 0, false)
+            format(io, spec, 0)
           end
 
           dev.each do |spec|
             io << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
-            format(io, spec, 0, false)
+            format(io, spec, 0)
           end
         else
           untracked = [] of {String, String}
@@ -62,40 +62,24 @@ module Geode::Commands
       stdout.puts str
     end
 
-    private def format(io : IO, shard : Shard, level : Int32, join : Bool) : Nil
+    private def format(io : IO, shard : Shard, level : Int32) : Nil
       io << " " * level
-      io << "│  " if join
-
       deps = shard.load_dependency_shards
       dev = shard.load_development_shards
 
       deps.each do |spec|
-        unless deps.empty? && dev.empty?
-          if deps.size > 1 || dev.size > 1
-            io << " ├─ "
-          else
-            io << " └─ "
-          end
-        end
-        io << spec.name << ": " << spec.version << '\n'
+        io << "• " << spec.name << ": " << spec.version << '\n'
 
         if spec.dependencies.size > 0 || spec.development.size > 0
-          format(io, spec, level + 1, deps.size > 1)
+          format(io, spec, level + 2)
         end
       end
 
       dev.each do |spec|
-        unless deps.empty? && dev.empty?
-          if deps.size > 1 || dev.size > 1
-            io << " ├─ "
-          else
-            io << " └─ "
-          end
-        end
-        io << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
+        io << "• " << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
 
         if spec.dependencies.size > 0 || spec.development.size > 0
-          format(io, spec, level + 1, dev.size > 1)
+          format(io, spec, level + 2)
         end
       end
     end
