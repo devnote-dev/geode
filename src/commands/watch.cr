@@ -77,8 +77,14 @@ module Geode::Commands
       stdout.puts "» Waiting for file changes..."
 
       sig = Channel(Int32).new
+      Process.on_interrupt do
+        sig.close
+        exit 1
+      end
+
       spawn do
         loop do
+          break if sig.closed?
           sleep interval
 
           unless new_stamps = get_timestamps
