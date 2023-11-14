@@ -44,7 +44,7 @@ module Geode
       # add_command Commands::Vendor.new
       add_command Commands::Remove.new
       # add_command Commands::Prune.new
-      add_command Commands::List.new
+      # add_command Commands::List.new
       add_command Commands::Info.new
       add_command Commands::Licenses.new
       add_command Commands::Run.new
