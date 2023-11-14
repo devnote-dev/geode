@@ -65,7 +65,7 @@ module Geode::Commands
       end
 
       pp entries
-      return
+      # return
 
       str = String.build do |io|
         if options.has? "tree"
