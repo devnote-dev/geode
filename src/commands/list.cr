@@ -64,7 +64,7 @@ module Geode::Commands
         entries.concat untracked
       end
 
-      pp entries
+      # pp entries
       # return
 
       str = String.build do |io|
