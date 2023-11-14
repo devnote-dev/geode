@@ -33,6 +33,9 @@ scripts:
   clean@linux: rm bin/geode
   clean@windows: del bin\geode.exe bin\geode.pdb
   format@linux: bin/ameba --all --except Lint/Documentation
+  lint@linux: |
+    bin/ameba --all --except Lint/Documentation
+    bin/ameba --all --except Metrics/CyclomaticComplexity
 
 targets:
   geode:
