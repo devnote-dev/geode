@@ -58,16 +58,20 @@ module Geode
       raise Error.new :parse_exception, ex.to_s
     end
 
-    def load_dependency_shards : Array(Shard)
+    getter dependency_shards : Hash(String, Shard) do
       @dependencies.keys.map do |name|
-        Shard.from_yaml File.read Path["lib", name, "shard.yml"]
-      end
+        spec = Shard.from_yaml File.read Path["lib", name, "shard.yml"]
+
+        {name, spec}
+      end.to_h
     end
 
-    def load_development_shards : Array(Shard)
+    getter development_shards : Hash(String, Shard) do
       @development.keys.map do |name|
-        Shard.from_yaml File.read Path["lib", name, "shard.yml"]
-      end
+        spec = Shard.from_yaml File.read Path["lib", name, "shard.yml"]
+
+        {name, spec}
+      end.to_h
     end
 
     def name_dependencies : Nil
