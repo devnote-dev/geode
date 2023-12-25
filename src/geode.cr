@@ -5,12 +5,14 @@ require "file_utils"
 require "ini"
 require "license"
 require "lua"
+require "string_pool"
 require "trigram"
 require "yaml"
 
 require "./commands/*"
 require "./config"
 require "./shard"
+require "./yaml/*"
 
 Colorize.on_tty_only!
 

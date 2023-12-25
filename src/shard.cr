@@ -43,7 +43,7 @@ module Geode
     property license : String?
     property repository : String?
     property dependencies : Hash(String, Dependency) = {} of String => Dependency
-    @[YAML::Field(key: "development_dependencies")]
+    @[::YAML::Field(key: "development_dependencies")]
     property development : Hash(String, Dependency) = {} of String => Dependency
     property libraries : Hash(String, String) = {} of String => String
     property executables : Array(String) = [] of String
