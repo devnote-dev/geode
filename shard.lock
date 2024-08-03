@@ -2,19 +2,15 @@ version: 2.0
 shards:
   ameba:
     git: https://github.com/crystal-ameba/ameba.git
-    version: 1.5.0
+    version: 1.6.1
 
   cling:
     git: https://github.com/devnote-dev/cling.git
-    version: 3.0.0+git.commit.c8975969bab1104be2ff9d715f2197dee6e4dd18
+    version: 3.0.0+git.commit.feef890224a251694fc84181cae3f509faa86f08
 
   license:
     git: https://github.com/devnote-dev/license.git
-    version: 0.1.0+git.commit.5d70576e0aab9dbaf9f444710ba3012d5f84e19c
-
-  lua:
-    git: https://github.com/veelenga/lua.cr.git
-    version: 0.2.0+git.commit.e8c9548a93cf6e6d7443364c5a8e5ee090ff74ec
+    version: 0.1.0+git.commit.f95e1c1c95d1ef9d50097b38f4e6bc688629601a
 
   trigram:
     git: https://github.com/devnote-dev/trigram.git

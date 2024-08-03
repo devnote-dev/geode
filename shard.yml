@@ -17,17 +17,12 @@ dependencies:
     github: devnote-dev/license
     branch: main
 
-  lua:
-    github: veelenga/lua.cr
-    branch: master
-
   trigram:
     github: devnote-dev/trigram
 
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.5.0
 
 scripts:
   clean@linux: rm bin/geode
