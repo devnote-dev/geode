@@ -53,8 +53,8 @@ module Geode::Commands
       should_build = if options.has?("skip-start")
                        false
                      elsif options.has?("check-start")
-                       !(File.executable?(Path["bin", name]) ||
-                         File.executable?(Path["bin", name + ".exe"]))
+                       !(File::Info.executable?(Path["bin", name]) ||
+                         File::Info.executable?(Path["bin", name + ".exe"]))
                      else
                        true
                      end
@@ -77,7 +77,7 @@ module Geode::Commands
       stdout.puts "» Waiting for file changes..."
 
       sig = Channel(Int32).new
-      Process.on_interrupt do
+      Process.on_terminate do |_|
         sig.close
         exit 1
       end

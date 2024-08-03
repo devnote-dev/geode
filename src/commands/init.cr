@@ -47,7 +47,7 @@ module Geode::Commands
         return write_shard(name, nil, author, "0.1.0", crystal, license)
       end
 
-      Process.on_interrupt do
+      Process.on_terminate do |_|
         stdout.puts "\nSetup cancelled\n"
         exit 0
       end
