@@ -59,7 +59,4 @@ module Geode
       stdout.puts help_template
     end
   end
-
-  class SystemExit < Exception
-  end
 end

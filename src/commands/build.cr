@@ -21,7 +21,7 @@ module Geode::Commands
       shard = Shard.load_local
       if shard.targets.empty?
         error "No targets defined in shard.yml"
-        system_exit
+        exit_program
       end
 
       unless Dir.exists? "bin"
@@ -29,7 +29,7 @@ module Geode::Commands
           Dir.mkdir "bin"
         rescue ex
           error ["Failed to create bin directory:", ex.to_s]
-          system_exit
+          exit_program
         end
       end
 

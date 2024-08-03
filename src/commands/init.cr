@@ -25,7 +25,7 @@ module Geode::Commands
           "A shard.yml file already exists in this directory",
           "Run this command with the '--force' flag to overwrite",
         ]
-        system_exit
+        exit_program
       end
 
       name = Path[Dir.current].basename.underscore

@@ -14,7 +14,11 @@ module Geode::Commands
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       Colorize.enabled = false if options.has? "no-color"
-      stdout.puts help_template if options.has? "help"
+
+      if options.has? "help"
+        stdout.puts help_template
+        exit_program 0
+      end
     end
 
     def on_error(ex : Exception)
@@ -41,8 +45,6 @@ module Geode::Commands
         in .parse_exception?
           error ["Failed to parse shard.yml contents:", ex.message.as(String)]
         end
-      when SystemExit
-        raise ex
       else
         error [
           "Unexpected exception:",
@@ -66,7 +68,7 @@ module Geode::Commands
         format,
         "See '#{command}' for more information",
       ]
-      system_exit
+      exit_program
     end
 
     def on_unknown_arguments(args : Array(String))
@@ -82,13 +84,13 @@ module Geode::Commands
         format,
         "See '#{command}' for more information",
       ]
-      system_exit
+      exit_program
     end
 
     def on_invalid_option(message : String)
       command = "geode #{self.name} --help".colorize.bold
       error [message, "See '#{command}' for more information"]
-      system_exit
+      exit_program
     end
 
     def on_unknown_options(options : Array(String))
@@ -104,7 +106,7 @@ module Geode::Commands
         format,
         "See '#{command}' for more information",
       ]
-      system_exit
+      exit_program
     end
 
     protected def success(msg : String) : Nil
@@ -127,10 +129,6 @@ module Geode::Commands
     protected def error(args : Array(String)) : Nil
       stderr << "» Error".colorize.red << ": " << args[0] << '\n'
       args[1..].each { |arg| stderr << "»  ".colorize.red << arg << '\n' }
-    end
-
-    protected def system_exit : NoReturn
-      raise SystemExit.new
     end
 
     protected def format_time(time : Time::Span) : String

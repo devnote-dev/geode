@@ -27,7 +27,7 @@ module Geode::Commands
         # TODO: fix `as_i32?` upstream
         unless options.get("jobs").as_s.to_i?
           error "Expected flag 'jobs' to be an integer, not a string"
-          system_exit
+          exit_program
         end
       end
 
@@ -50,7 +50,7 @@ module Geode::Commands
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       unless File.exists? "shard.yml"
         error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
-        system_exit
+        exit_program
       end
 
       shards = Process.find_executable "shards"
@@ -59,7 +59,7 @@ module Geode::Commands
           "Could not find the Shards executable",
           "(wrapped around for dependency resolution)",
         ]
-        system_exit
+        exit_program
       end
 
       args = %w[install --skip-executables --skip-postinstall]
@@ -92,7 +92,7 @@ module Geode::Commands
         end
       else
         error "Install failed (#{format_time(Time.monotonic - start)})"
-        system_exit
+        exit_program
       end
 
       shards = [] of Shard

@@ -12,12 +12,12 @@ module Geode::Commands
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       unless File.exists? "shard.yml"
         error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
-        system_exit
+        exit_program
       end
 
       unless Dir.exists? "lib"
         error "No shards installed"
-        system_exit
+        exit_program
       end
 
       shard = Shard.load_local
@@ -28,7 +28,7 @@ module Geode::Commands
         else
           error "Shard '#{name}' not installed"
         end
-        system_exit
+        exit_program
       end
 
       shard = Shard.from_yaml File.read(Path["lib"] / name / "shard.yml")
@@ -92,7 +92,7 @@ module Geode::Commands
       end
     rescue ex : YAML::ParseException
       error ["Failed to parse shard.yml contents:", ex.to_s]
-      system_exit
+      exit_program
     end
   end
 end

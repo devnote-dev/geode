@@ -17,7 +17,7 @@ module Geode::Commands
       shard = Shard.load_local
       if shard.targets.empty?
         error "No targets defined in shard.yml"
-        system_exit
+        exit_program
       end
 
       Dir.mkdir_p "bin"
@@ -25,24 +25,24 @@ module Geode::Commands
       name = arguments.get?("target").try(&.as_s) || shard.targets.first_key
       unless target = shard.targets[name]?
         error "Unknown target '#{name}'"
-        system_exit
+        exit_program
       end
 
       unless target.has_key? "main"
         error "Missing 'main' field for target: #{name}"
-        system_exit
+        exit_program
       end
 
       begin
         interval = options.get("interval").as_f
       rescue
         error "Could not parse interval (must be a number)"
-        system_exit
+        exit_program
       end
 
       unless old_stamps = get_timestamps
         error "No Crystal files found to watch"
-        system_exit
+        exit_program
       end
 
       dry = options.has? "dry"
