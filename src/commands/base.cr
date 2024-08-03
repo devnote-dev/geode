@@ -12,16 +12,9 @@ module Geode::Commands
       Commands.format_command self
     end
 
-    def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool
+    def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       Colorize.enabled = false if options.has? "no-color"
-
-      if options.has? "help"
-        stdout.puts help_template
-
-        false
-      else
-        true
-      end
+      stdout.puts help_template if options.has? "help"
     end
 
     def on_error(ex : Exception)

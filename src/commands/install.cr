@@ -20,8 +20,8 @@ module Geode::Commands
       add_option 'P', "skip-postinstall"
     end
 
-    def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool
-      return false unless super
+    def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+      # return false unless super
 
       if options.has? "jobs"
         # TODO: fix `as_i32?` upstream
@@ -45,8 +45,6 @@ module Geode::Commands
         "production",
         %(  ↳ implies #{flags.join " and "}),
       ]
-
-      true
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
