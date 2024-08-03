@@ -48,7 +48,7 @@ module Geode::Commands
       dry = options.has? "dry"
       pipe = options.has? "pipe"
       err = IO::Memory.new
-      proc = Process.new "echo" # dummy process for variable access
+      proc = uninitialized Process
 
       should_build = if options.has?("skip-start")
                        false
@@ -93,8 +93,7 @@ module Geode::Commands
           end
 
           unless old_stamps == new_stamps || new_stamps.all? &.in?(old_stamps)
-            diff = (new_stamps - old_stamps).size
-            sig.send diff
+            sig.send (new_stamps - old_stamps).size
             old_stamps.concat new_stamps
           end
         end
@@ -108,10 +107,9 @@ module Geode::Commands
           proc.terminate
         end
 
-        stdout.puts "» Rebuilding (#{count} file change#{"s" if count > 1})"
-        proc = new_process name, target["main"], target["flags"]?, dry, pipe, err
-
         spawn do
+          stdout.puts "» Rebuilding (#{count} file change#{"s" if count > 1})"
+          proc = new_process name, target["main"], target["flags"]?, dry, pipe, err
           start = Time.monotonic
           status = proc.wait
           taken = format_time(Time.monotonic - start)
