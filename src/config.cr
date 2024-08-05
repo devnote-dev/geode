@@ -1,5 +1,7 @@
 module Geode
   class Config
+    include YAML::Serializable
+
     CACHE_DIR = {% if flag?(:win32) %}
                   Path[ENV["LOCALAPPDATA"], "geode"]
                 {% else %}
@@ -52,8 +54,6 @@ module Geode
       def initialize(@author, @url, @license, @vcs)
       end
     end
-
-    include YAML::Serializable
 
     getter notices : Notices
     getter presets : Presets

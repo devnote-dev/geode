@@ -88,6 +88,8 @@ module Geode::Commands
       def setup : Nil
         @name = "setup"
         @summary = "setup the geode config"
+
+        add_option "force", description: "force override the existing config"
       end
 
       def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -99,10 +101,15 @@ module Geode::Commands
           Dir.mkdir_p Geode::Config::LIBRARY_DIR
         end
 
-        begin
-          Geode::Config.path
-        rescue
+        if options.has? "force"
           Geode::Config.new.save
+        else
+          begin
+            Geode::Config.path
+            warn "A config already exists", "Rerun with the '--force' flag to override"
+          rescue
+            Geode::Config.new.save
+          end
         end
       end
     end
