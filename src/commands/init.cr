@@ -21,10 +21,10 @@ module Geode::Commands
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       if File.exists?("shard.yml") && !options.has?("force")
-        error [
+        error(
           "A shard.yml file already exists in this directory",
           "Run this command with the '--force' flag to overwrite",
-        ]
+        )
         exit_program
       end
 

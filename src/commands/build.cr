@@ -28,7 +28,7 @@ module Geode::Commands
         begin
           Dir.mkdir "bin"
         rescue ex
-          error ["Failed to create bin directory:", ex.to_s]
+          error "Failed to create bin directory:", ex.to_s
           exit_program
         end
       end
@@ -36,7 +36,7 @@ module Geode::Commands
       if targets = arguments.get?("targets").try &.as_set
         targets, unknown = targets.partition { |t| shard.targets.has_key? t }
         unless unknown.empty?
-          warn ["Skipping unknown targets:", unknown.join(", ")]
+          warn "Skipping unknown targets:", unknown.join(", ")
         end
       else
         targets = shard.targets.keys
@@ -59,7 +59,7 @@ module Geode::Commands
           next
         end
 
-        stdout.puts "» Building: #{name}"
+        info "Building: #{name}"
         count += 1
 
         spawn do

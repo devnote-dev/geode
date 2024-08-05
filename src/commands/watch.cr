@@ -74,7 +74,7 @@ module Geode::Commands
         end
       end
 
-      stdout.puts "» Waiting for file changes..."
+      info "Waiting for file changes..."
 
       sig = Channel(Int32).new
       Process.on_terminate do |_|
@@ -103,12 +103,12 @@ module Geode::Commands
         break unless count = sig.receive?
         if proc.exists?
           stdout.puts if pipe
-          stdout.puts "» Cancelling build"
+          info "Cancelling build"
           proc.terminate
         end
 
         spawn do
-          stdout.puts "» Rebuilding (#{count} file change#{"s" if count > 1})"
+          info "Rebuilding (#{count} file change#{"s" if count > 1})"
           proc = new_process name, target["main"], target["flags"]?, dry, pipe, err
           start = Time.monotonic
           status = proc.wait
@@ -116,11 +116,11 @@ module Geode::Commands
 
           if status.success?
             success "Target rebuilt in #{taken}"
-            stdout.puts "» Waiting for file changes..."
+            info "Waiting for file changes..."
           elsif status.normal_exit?
             stderr.puts err
             error "Target failed (#{taken})"
-            stdout.puts "» Waiting for file changes..."
+            info "Waiting for file changes..."
           end
         end
       end

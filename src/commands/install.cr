@@ -40,25 +40,25 @@ module Geode::Commands
       flags << "without-development" if nodev
       flags << "frozen" if frozen
 
-      warn [
+      warn(
         "Unnecessary flag#{"s" if nodev && frozen} specified:",
         "production",
         %(  ↳ implies #{flags.join " and "}),
-      ]
+      )
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       unless File.exists? "shard.yml"
-        error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
+        error "A shard.yml file was not found", "Run 'geode init' to initialize one"
         exit_program
       end
 
       shards = Process.find_executable "shards"
       unless shards
-        error [
+        error(
           "Could not find the Shards executable",
           "(wrapped around for dependency resolution)",
-        ]
+        )
         exit_program
       end
 
@@ -136,7 +136,7 @@ module Geode::Commands
             unless File.exists? dest
               begin
                 File.copy src, dest
-                stdout.puts "» Added executable '#{exe}'"
+                info "Added executable '#{exe}'"
               rescue
                 error "Failed to link #{shard.name} executable '#{exe}'"
               end
@@ -162,10 +162,10 @@ module Geode::Commands
           taken = format_time(Time.monotonic - start)
         {% if flag?(:win32) %}
           rescue ex : File::NotFoundError
-            error [
+            error(
               "Failed to start process for script:",
               ex.to_s,
-            ]
+            )
             return
           end
         {% end %}

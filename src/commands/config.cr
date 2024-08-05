@@ -70,10 +70,10 @@ module Geode::Commands
         when "presets.vcs"
           config.presets.vcs = value.try &.as_s
         else
-          error [
+          error(
             "Unknown config key: #{key}",
             "See '#{"geode config --help".colorize.bold}' for available config keys",
-          ]
+          )
           exit_program
         end
 
