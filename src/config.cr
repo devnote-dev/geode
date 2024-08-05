@@ -12,32 +12,24 @@ module Geode
                     Path[ENV["XDG_DATA_HOME"]? || Path.home / ".local" / "share" / "geode"]
                   {% end %}
 
-    PATH      = CACHE_DIR / "config.ini"
     TEMPLATES = LIBRARY_DIR / "templates"
 
     class Error < Exception
       enum Code
         NotFound
-        ParseException
+        Parsing
+        Saving
       end
 
       getter code : Code
 
-      def initialize(@code, @message = nil)
+      def initialize(@code, @message = nil, @cause = nil)
       end
     end
 
-    private class Presets
-      property author : String?
-      property url : String?
-      property license : String?
-      property vcs : String?
+    class Notices
+      include YAML::Serializable
 
-      def initialize(@author, @url, @license, @vcs)
-      end
-    end
-
-    private class Notices
       property? shardbox : Bool
       property? crystaldoc : Bool
 
@@ -45,55 +37,55 @@ module Geode
       end
     end
 
-    property notices : Notices
-    property presets : Presets
+    class Presets
+      include YAML::Serializable
 
-    def self.load : self
-      data = INI.parse File.read PATH
+      @[YAML::Field(emit_null: true)]
+      property author : String?
+      @[YAML::Field(emit_null: true)]
+      property url : String?
+      @[YAML::Field(emit_null: true)]
+      property license : String?
+      @[YAML::Field(emit_null: true)]
+      property vcs : String?
 
-      notices = data["notices"]?.try do |value|
-        Notices.new(
-          value["shardbox"]?.try { |v| v == "true" } || false,
-          value["crystaldoc"]?.try { |v| v == "true" } || false,
-        )
+      def initialize(@author, @url, @license, @vcs)
       end
-
-      presets = data["presets"]?.try do |value|
-        Presets.new(
-          value["author"]?,
-          value["url"]?,
-          value["license"]?,
-          value["vcs"]?,
-        )
-      end
-
-      new notices, presets
-    rescue File::NotFoundError
-      raise Error.new :not_found
-    rescue ex : INI::ParseException
-      raise Error.new :parse_exception, ex.to_s
     end
 
-    def initialize(notices, presets)
-      @notices = notices || Notices.new(false, false)
-      @presets = presets || Presets.new(nil, nil, nil, nil)
+    include YAML::Serializable
+
+    getter notices : Notices
+    getter presets : Presets
+
+    class_getter path : String do
+      if File.exists?(path = CACHE_DIR / "config.yml")
+        path
+      elsif File.exists?(path = CACHE_DIR / "config.yaml")
+        path
+      else
+        raise Error.new :not_found
+      end.to_s
+    end
+
+    def self.load : self
+      File.open(path) do |file|
+        from_yaml file
+      end
+    rescue ex : YAML::Error
+      raise Error.new :parsing, ex.message, cause: ex
+    end
+
+    def initialize
+      @notices = Notices.new(true, true)
+      @presets = Presets.new(nil, nil, nil, nil)
     end
 
     def save : Nil
-      File.open(PATH, mode: "w") do |file|
-        INI.build file, {
-          notices: {
-            shardbox:   @notices.shardbox?,
-            crystaldoc: @notices.crystaldoc?,
-          },
-          presets: {
-            author:  @presets.author,
-            url:     @presets.url,
-            license: @presets.license,
-            vcs:     @presets.vcs,
-          },
-        }
-      end
+      dest = Geode::Config.path rescue CACHE_DIR / "config.yml"
+      File.write dest, to_yaml
+    rescue ex
+      raise Error.new :saving, ex.message, cause: ex
     end
   end
 end

@@ -53,14 +53,14 @@ module Geode::Commands
             exit_program
           end
 
-          config.notices.shardbox = value.as_bool
+          config.notices.shardbox = value.to_bool
         when "notices.crystaldoc"
           if value.nil?
             error "A value is required for this key"
             exit_program
           end
 
-          config.notices.crystaldoc = value.as_bool
+          config.notices.crystaldoc = value.to_bool
         when "presets.author"
           config.presets.author = value.try &.as_s
         when "presets.url"
@@ -78,8 +78,8 @@ module Geode::Commands
         end
 
         config.save
-      rescue TypeCastError
-        error "Expected key '#{key}' to be a boolean, not a string"
+      rescue ArgumentError
+        error "Expected value for '#{key}' to be a boolean, not a string"
         exit_program
       end
     end
@@ -99,15 +99,10 @@ module Geode::Commands
           Dir.mkdir_p Geode::Config::LIBRARY_DIR
         end
 
-        if File.exists? Geode::Config::PATH
-          begin
-            _ = INI.parse File.read Geode::Config::PATH
-          rescue INI::ParseException
-            warn "Failed to parse config, setting to default"
-            Geode::Config.new(nil, nil).save
-          end
-        else
-          Geode::Config.new(nil, nil).save
+        begin
+          Geode::Config.path
+        rescue
+          Geode::Config.new.save
         end
       end
     end

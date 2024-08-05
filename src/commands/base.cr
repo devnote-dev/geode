@@ -32,11 +32,13 @@ module Geode::Commands
         in .not_found?
           error(
             "Config not found",
-            "Location: #{Geode::Config::PATH}",
+            "Expected 'config.yml' or 'config.yaml' file at cache dir",
             "Run '#{"geode config setup".colorize.bold}' to get started"
           )
-        in .parse_exception?
+        in .parsing?
           error "Failed to parse config:", ex.message.as(String)
+        in .saving?
+          error "Failed to save config:", ex.message.as(String)
         end
       when Geode::Shard::Error
         case ex.code

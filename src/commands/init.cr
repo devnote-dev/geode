@@ -29,7 +29,7 @@ module Geode::Commands
       end
 
       name = Path[Dir.current].basename.underscore
-      config = Geode::Config.load rescue Geode::Config.new(nil, nil)
+      config = Geode::Config.load rescue Geode::Config.new
       author = config.presets.author
       crystal = begin
         version = `crystal version`.split(' ', 3)[1]
