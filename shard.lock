@@ -6,7 +6,7 @@ shards:
 
   cling:
     git: https://github.com/devnote-dev/cling.git
-    version: 3.0.0+git.commit.feef890224a251694fc84181cae3f509faa86f08
+    version: 3.0.0+git.commit.87d2184e0223cd647de86b6f4247bb42795bfaf2
 
   license:
     git: https://github.com/devnote-dev/license.git
