@@ -38,8 +38,7 @@ module Geode::Commands
         pipe = false
       end
 
-      wait = Channel(Nil).new
-      count = 0
+      wg = WaitGroup.new
 
       targets.each do |name|
         target = shard.targets[name]
@@ -49,15 +48,15 @@ module Geode::Commands
         end
 
         info "Building: #{name}"
-        count += 1
 
+        wg.add
         spawn do
           build name, target["main"], target["flags"]?, dry, pipe
-          wait.send nil
+          wg.done
         end
       end
 
-      count.times { wait.receive }
+      wg.wait
     end
 
     private def build(name : String, main : String, flags : String?, dry : Bool, pipe : Bool) : Nil
