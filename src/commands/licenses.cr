@@ -27,7 +27,7 @@ module Geode::Commands
       trigram = Trigram.new do |t|
         License.licenses.each { |l| t.add l.title }
       end
-      found = Hash(String, Array(License)).new # { [] of License }
+      found = Hash(String, Array(License)).new
 
       paths.each do |name, arr|
         licenses = [] of License
@@ -80,12 +80,11 @@ module Geode::Commands
 
       Dir.each_child("lib") do |child|
         next if child.starts_with? '.'
-        next unless File.exists?(path = Path["lib"] / child / "shard.yml")
+        next unless Shard.exists? child
 
-        shard = Shard.from_yaml File.read path
-        libs << shard.name
-      rescue YAML::ParseException
-        warn "Failed to parse shard.yml contents for '#{child}'"
+        libs << Shard.load(child).name
+      rescue Shard::Error
+        warn "Failed to parse shard.yml for '#{child}'"
       end
 
       libs

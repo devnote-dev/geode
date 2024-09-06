@@ -87,8 +87,9 @@ module Geode::Commands
       shards = [] of Shard
       Dir.each_child("lib") do |child|
         next if child.starts_with? '.'
-        next unless File.exists?(path = Path["lib"] / child / "shard.yml")
-        shards << Shard.from_yaml File.read path
+        next unless Shard.exists? child
+
+        shards << Shard.load child
       rescue YAML::ParseException
         warn "Failed to parse shard.yml contents for '#{child}'"
       end

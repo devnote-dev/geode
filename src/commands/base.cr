@@ -111,6 +111,10 @@ module Geode::Commands
       exit_program
     end
 
+    protected def puts : Nil
+      stdout.puts
+    end
+
     protected def puts(msg : String) : Nil
       stdout.puts msg
     end

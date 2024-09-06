@@ -15,34 +15,21 @@ module Geode::Commands
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       shard = Shard.load_local
-      if shard.targets.empty?
-        error "No targets defined in shard.yml"
-        exit_program
-      end
-
+      fatal "No targets defined in shard.yml" if shard.targets.empty?
       Dir.mkdir_p "bin"
 
       name = arguments.get?("target").try(&.as_s) || shard.targets.first_key
-      unless target = shard.targets[name]?
-        error "Unknown target '#{name}'"
-        exit_program
-      end
-
-      unless target.has_key? "main"
-        error "Missing 'main' field for target: #{name}"
-        exit_program
-      end
+      fatal "Unknown target '#{name}'" unless target = shard.targets[name]?
+      fatal "Missing 'main' field for target: #{name}" unless target.has_key? "main"
 
       begin
-        interval = options.get("interval").as_f
+        interval = options.get("interval").to_f64
       rescue
-        error "Could not parse interval (must be a number)"
-        exit_program
+        fatal "Could not parse interval (must be a number)"
       end
 
       unless old_stamps = get_timestamps
-        error "No Crystal files found to watch"
-        exit_program
+        fatal "No Crystal files found to watch"
       end
 
       dry = options.has? "dry"
@@ -102,7 +89,7 @@ module Geode::Commands
       loop do
         break unless count = sig.receive?
         if proc.exists?
-          stdout.puts if pipe
+          puts if pipe
           info "Cancelling build"
           proc.terminate
         end

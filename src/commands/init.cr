@@ -92,7 +92,7 @@ module Geode::Commands
         license = input
       end
 
-      stdout.puts
+      puts
       write_shard(name, description, author, version, crystal, license)
     end
 
