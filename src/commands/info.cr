@@ -74,12 +74,11 @@ module Geode::Commands
         end
         stdout << '\n'
       end
+      return if shard.executables.empty?
 
-      unless shard.executables.empty?
-        stdout << "executables:\n".colorize.bold
-        shard.executables.each { |e| stdout << "• " << e << '\n' }
-        stdout << '\n'
-      end
+      stdout << "executables:\n".colorize.bold
+      shard.executables.each { |e| stdout << "• " << e << '\n' }
+      stdout << '\n'
     end
   end
 end

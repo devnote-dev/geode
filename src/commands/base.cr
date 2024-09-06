@@ -14,11 +14,10 @@ module Geode::Commands
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       Colorize.enabled = false if options.has? "no-color"
+      return unless options.has? "help"
 
-      if options.has? "help"
-        stdout.puts help_template
-        exit_program 0
-      end
+      stdout.puts help_template
+      exit_program 0
     end
 
     def on_error(ex : Exception)
@@ -151,18 +150,14 @@ module Geode::Commands
     end
 
     protected def ensure_local_shard! : Nil
-      unless File.exists? "shard.yml"
-        error "A shard.yml file was not found", "Run 'geode init' to initialize one"
-        exit_program
-      end
+      return if File.exists? "shard.yml"
+
+      fatal "A shard.yml file was not found", "Run 'geode init' to initialize one"
     end
 
     protected def ensure_local_shard_and_lib! : Nil
       ensure_local_shard!
-      unless Dir.exists? "lib"
-        error "No shards installed"
-        exit_program
-      end
+      fatal "No shards installed" unless Dir.exists? "lib"
     end
 
     protected def format_time(time : Time::Span) : String
