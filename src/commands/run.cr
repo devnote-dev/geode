@@ -76,7 +76,7 @@ module Geode::Commands
         end
       end
 
-      error "No scripts defined in shard.yml" if shard.scripts.empty?
+      fatal "No scripts defined in shard.yml" if shard.scripts.empty?
       name = arguments.get("script").as_s
 
       unless shard.scripts.keys.any? &.starts_with? name
