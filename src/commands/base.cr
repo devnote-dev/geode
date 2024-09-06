@@ -111,7 +111,7 @@ module Geode::Commands
       exit_program
     end
 
-    protected def plain(msg : String) : Nil
+    protected def puts(msg : String) : Nil
       stdout.puts msg
     end
 
@@ -139,6 +139,11 @@ module Geode::Commands
     protected def error(*args : String) : Nil
       stderr << "» Error".colorize.red << ": " << args[0] << '\n'
       args[1..].each { |arg| stderr << "»  ".colorize.red << arg << '\n' }
+    end
+
+    protected def fatal(*args : String) : NoReturn
+      error *args
+      exit_program
     end
 
     protected def ensure_local_shard! : Nil

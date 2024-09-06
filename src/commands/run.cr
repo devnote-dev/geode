@@ -60,35 +60,27 @@ module Geode::Commands
             shard = Shard.load name
             dir = dir / "lib" / name
           else
-            error "Shard '#{name}' is listed as a dependency but not installed"
-            exit_program
+            fatal "Shard '#{name}' is listed as a dependency but not installed"
           end
         elsif shard.development.has_key? name
           if Shard.exists? name
             shard = Shard.load name
             dir = dir / "lib" / name
           else
-            error "Shard '#{name}' is listed as a development dependency but not installed"
-            exit_program
+            fatal "Shard '#{name}' is listed as a development dependency but not installed"
           end
         elsif Shard.exists? name
-          error "Shard '#{name}' is installed but not listed as a dependency"
-          exit_program
+          fatal "Shard '#{name}' is installed but not listed as a dependency"
         else
-          error "Shard '#{name}' is not installed"
-          exit_program
+          fatal "Shard '#{name}' is not installed"
         end
       end
 
-      if shard.scripts.empty?
-        error "No scripts defined in shard.yml"
-        exit_program
-      end
-
+      error "No scripts defined in shard.yml" if shard.scripts.empty?
       name = arguments.get("script").as_s
+
       unless shard.scripts.keys.any? &.starts_with? name
-        error "Unknown script '#{name}'"
-        exit_program
+        fatal "Unknown script '#{name}'"
       end
 
       if target = options.get?("target").try &.as_s
@@ -98,11 +90,7 @@ module Geode::Commands
         script = shard.find_target_script name, target
       end
 
-      unless script
-        error "No script available for target: #{target}"
-        exit_program
-      end
-
+      fatal "No script available for target: #{target}" unless script
       run_script script, dir.to_s
     end
 

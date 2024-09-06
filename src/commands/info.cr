@@ -16,11 +16,10 @@ module Geode::Commands
       name = arguments.get("shard").as_s
       unless shard.dependencies.has_key?(name) || shard.development.has_key?(name)
         if Shard.exists? name
-          error "Shard '#{name}' is installed but not listed as a dependency"
+          fatal "Shard '#{name}' is installed but not listed as a dependency"
         else
-          error "Shard '#{name}' not installed"
+          fatal "Shard '#{name}' not installed"
         end
-        exit_program
       end
 
       shard = Shard.load name

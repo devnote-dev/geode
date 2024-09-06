@@ -4,7 +4,7 @@ authors:
   - Devonte W <https://github.com/devnote-dev>
 
 version: 0.1.0
-crystal: '>= 1.9.0'
+crystal: '>= 1.13.0'
 license: MPL
 repository: https://github.com/devnote-dev/geode
 
@@ -29,6 +29,8 @@ scripts:
   clean@windows: del bin\geode.exe bin\geode.pdb
   lint@linux: |
     bin/ameba --all --except Lint/Documentation,Metrics/CyclomaticComplexity
+  lint@windows: |
+    ameba.exe --all --except Lint/Documentation,Metrics/CyclomaticComplexity
 
 targets:
   geode:

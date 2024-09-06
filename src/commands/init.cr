@@ -21,11 +21,10 @@ module Geode::Commands
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       if File.exists?("shard.yml") && !options.has?("force")
-        error(
+        fatal(
           "A shard.yml file already exists in this directory",
           "Run this command with the '--force' flag to overwrite",
         )
-        exit_program
       end
 
       name = Path[Dir.current].basename.underscore
@@ -48,17 +47,17 @@ module Geode::Commands
       end
 
       Process.on_terminate do |_|
-        stdout.puts "\nSetup cancelled\n"
+        puts "\nSetup cancelled\n"
         exit 0
       end
 
-      stdout.puts <<-INTRO
+      puts <<-INTRO
         Welcome to the #{"Geode interactive shard setup".colorize.magenta}!
         This setup will walk you through creating a new shard.yml file.
         If you want to skip this setup, exit and run 'geode init --skip'.
         Press '^#{CHAR}' (#{COMMAND}+#{CHAR}) to exit at any time.
         INTRO
-      stdout.puts
+      puts
 
       prompt("name: (#{name}) ") do |input|
         unless Shard::NAME_REGEX.matches? input

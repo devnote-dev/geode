@@ -19,11 +19,7 @@ module Geode::Commands
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       shard = Shard.load_local
-      if shard.targets.empty?
-        error "No targets defined in shard.yml"
-        exit_program
-      end
-
+      fatal "No targets defined in shard.yml" if shard.targets.empty?
       Dir.mkdir_p "bin"
 
       if targets = arguments.get?("targets").try &.as_set

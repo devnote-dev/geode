@@ -21,20 +21,16 @@ module Geode::Commands
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      # return false unless super
-
       if options.has? "jobs"
-        # TODO: fix `as_i32?` upstream
-        unless options.get("jobs").as_s.to_i?
-          error "Expected flag 'jobs' to be an integer, not a string"
-          exit_program
+        unless options.get("jobs").to_i32?
+          fatal "Expected flag 'jobs' to be an integer, not a string"
         end
       end
 
       nodev = options.has? "without-development"
       frozen = options.has? "frozen"
       production = options.has? "production"
-      return true unless (nodev || frozen) && production
+      return unless (nodev || frozen) && production
 
       flags = [] of String
       flags << "without-development" if nodev
@@ -51,13 +47,10 @@ module Geode::Commands
       ensure_local_shard!
 
       shards = Process.find_executable "shards"
-      unless shards
-        error(
-          "Could not find the Shards executable",
-          "(wrapped around for dependency resolution)",
-        )
-        exit_program
-      end
+      fatal(
+        "Could not find the Shards executable",
+        "(wrapped around for dependency resolution)",
+      ) unless shards
 
       args = %w[install --skip-executables --skip-postinstall]
       args << "--frozen" if options.has? "frozen"
@@ -77,9 +70,9 @@ module Geode::Commands
           if message.includes?("Installing") || message.includes?("Using")
             deps << message.split(' ', 3)[1]
           end
-          stdout.puts message
+          puts message
         end
-        stdout.puts
+        puts
       end
 
       if $?.success?
@@ -88,8 +81,7 @@ module Geode::Commands
           return
         end
       else
-        error "Install failed (#{format_time(Time.monotonic - start)})"
-        exit_program
+        fatal "Install failed (#{format_time(Time.monotonic - start)})"
       end
 
       shards = [] of Shard

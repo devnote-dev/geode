@@ -45,20 +45,13 @@ module Geode::Commands
 
         case key
         when "system.cache", "system.library"
-          error "System paths are not configurable"
-          exit_program
+          fatal "System paths are not configurable"
         when "notices.shardbox"
-          if value.nil?
-            error "A value is required for this key"
-            exit_program
-          end
+          fatal "A value is required for this key" if value.nil?
 
           config.notices.shardbox = value.to_bool
         when "notices.crystaldoc"
-          if value.nil?
-            error "A value is required for this key"
-            exit_program
-          end
+          fatal "A value is required for this key" if value.nil?
 
           config.notices.crystaldoc = value.to_bool
         when "presets.author"
@@ -70,17 +63,15 @@ module Geode::Commands
         when "presets.vcs"
           config.presets.vcs = value.try &.as_s
         else
-          error(
+          fatal(
             "Unknown config key: #{key}",
             "See '#{"geode config --help".colorize.bold}' for available config keys",
           )
-          exit_program
         end
 
         config.save
       rescue ArgumentError
-        error "Expected value for '#{key}' to be a boolean, not a string"
-        exit_program
+        fatal "Expected value for '#{key}' to be a boolean, not a string"
       end
     end
 
