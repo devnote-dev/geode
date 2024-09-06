@@ -1,5 +1,3 @@
-{% skip_file %}
-
 module Geode::Commands
   class List < Base
     private class Entry
@@ -24,133 +22,72 @@ module Geode::Commands
       @name = "list"
       @summary = "list installed shards"
       @description = <<-DESC
-        Lists the shards that have been installed. Due to the nature of the Shards CLI,
-        transitive dependencies will also be listed even if they are not directly
-        required by your project.
+        Lists the shards that have been installed. By default this will only show direct
+        dependencies listed in shard.yml, development dependencies can be shown by
+        specifying the '--development' flag. Transitive dependencies (shards used by your
+        dependencies) can be listed by specifying the '--transitive' flag. Untracked
+        dependencies (shards that have been installed but aren't listed in shard.yml) can
+        be listed by specifying the '--untracked' flag.
         DESC
 
-      add_option "tree", description: "list recursively in tree format"
+      add_option 'd', "development"
+      add_option 't', "transitive"
+      add_option 'u', "untracked"
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      unless File.exists? "shard.yml"
-        error ["A shard.yml file was not found", "Run 'geode init' to initialize one"]
-        exit_program
-      end
-      return unless Dir.exists? "lib"
+      ensure_local_shard_and_lib!
 
       root = Shard.load_local
-      entries = root.dependency_shards.map { |name, spec| Entry.new(name, spec.version, :direct) }
-      entries.concat root.development_shards.map { |name, spec| Entry.new(name, spec.version, :development) }
+      entries = [] of Entry
+      development = options.has? "development"
+      transitive = options.has? "transitive"
+      untracked = options.has? "untracked"
 
-      deps = root.load_dependency_shards
-      dev = root.load_development_shards
-      entries = deps.map { |dep| Entry.new(dep.name, dep.version, :direct) }
-      entries.concat dev.map { |dep| Entry.new(dep.name, dep.version, :development) }
+      root.dependency_shards.each do |name, shard|
+        entries << Entry.new(name, shard.version, :direct)
 
-      untracked = [] of Entry
+        if transitive
+          shard.dependency_shards.each do |_, dep|
+            entries << Entry.new(dep.name, dep.version, :transitive)
+          end
+        end
+      end
+
+      root.development_shards.each do |name, shard|
+        entries << Entry.new(name, shard.version, :development)
+
+        if transitive
+          shard.development_shards.each do |_, dep|
+            entries << Entry.new(dep.name, dep.version, :transitive)
+          end
+        end
+      end
+
       Dir.each_child("lib") do |child|
         next if child.starts_with? '.'
-        next unless File.exists?(path = Path["lib", child, "shard.yml"])
+        next unless Shard.exists? child
 
-        shard = Shard.from_yaml File.read path
-        next if deps.find { |d| d.name == shard.name } || dev.find { |d| d.name == shard.name }
+        shard = Shard.load child
+        entry = Entry.new(shard.name, shard.version, :untracked)
+        next if entries.includes? entry
 
-        untracked << Entry.new(shard.name, shard.version, :untracked)
+        entries << entry
       end
 
-      unless untracked.empty?
-        resolve_untracked root, entries, untracked
-        entries.concat untracked
-      end
-
-      # pp entries
-      # return
-
-      str = String.build do |io|
-        if options.has? "tree"
-          deps.each do |spec|
-            io << spec.name << ": " << spec.version << '\n'
-            format(io, spec, 0)
+      entries.each do |entry|
+        if entry.kind.direct? ||
+           (development && entry.kind.development?) ||
+           (transitive && entry.kind.transitive?) ||
+           (untracked && entry.kind.untracked?)
+          stdout << "• " if entry.kind.transitive?
+          stdout << entry.name << ": " << entry.version
+          case entry.kind
+          when .development? then stdout << " (development)".colorize.light_gray
+          when .transitive?  then stdout << " (transitive)".colorize.light_gray
+          when .untracked?   then stdout << " (untracked)".colorize.yellow
           end
-
-          dev.each do |spec|
-            io << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
-            format(io, spec, 0)
-          end
-        else
-          untracked = [] of {String, String}
-          Dir.each_child("lib") do |child|
-            next if child.starts_with? '.'
-            next if deps.find { |d| d.name == child } || dev.find { |d| d.name == child }
-            next unless File.exists?(path = Path["lib", child, "shard.yml"])
-
-            shard = Shard.from_yaml File.read path
-            untracked << {shard.name, shard.version}
-          end
-
-          deps.each do |spec|
-            io << spec.name << ": " << spec.version << '\n'
-          end
-
-          dev.each do |spec|
-            io << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
-          end
-
-          untracked.each do |(name, version)|
-            io << name << ": " << version << " (untracked)".colorize.yellow << '\n'
-          end
-        end
-      end
-
-      stdout.puts str
-    end
-
-    private def resolve_untracked(shard : Shard, resolved : Array(Entry), untracked : Array(Entry)) : Nil
-      deps = shard.load_dependency_shards
-      dev = shard.load_development_shards
-
-      untracked.each do |entry|
-        deps.each do |dep|
-          if dep.dependencies.has_key? name
-            entry.kind = :transitive
-            resolved << entry
-          elsif dep.development.has_key? name
-            entry.kind = :transitive
-            resolved << entry
-          end
-        end
-
-        dev.each do |dep|
-          if dep.dependencies.has_key? name
-            entry.kind = :development
-            resolved << entry
-          elsif dep.development.has_key? name
-            entry.kind = :development
-            resolved << entry
-          end
-        end
-      end
-    end
-
-    private def format(io : IO, shard : Shard, level : Int32) : Nil
-      io << " " * level
-      deps = shard.load_dependency_shards
-      dev = shard.load_development_shards
-
-      deps.each do |spec|
-        io << "• " << spec.name << ": " << spec.version << '\n'
-
-        if spec.dependencies.size > 0 || spec.development.size > 0
-          format(io, spec, level + 2)
-        end
-      end
-
-      dev.each do |spec|
-        io << "• " << spec.name << ": " << spec.version << " (development)".colorize.light_gray << '\n'
-
-        if spec.dependencies.size > 0 || spec.development.size > 0
-          format(io, spec, level + 2)
+          stdout << '\n'
         end
       end
     end
