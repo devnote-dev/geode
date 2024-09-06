@@ -97,7 +97,7 @@ module Geode::Commands
     private def run_script(script : String, dir : String) : Nil
       stdout << "» Running script: "
       stdout << '\n' if script.lines.size > 1
-      stdout << script.colorize.light_gray << "\n\n"
+      stdout << script.colorize.light_gray << '\n'
 
       status : Process::Status
       taken : String
@@ -108,7 +108,7 @@ module Geode::Commands
           temp = File.tempfile("geode-tmp-run", ".cmd") do |file|
             file << script
           end
-          status = Process.run(temp.path, chdir: dir, output: stdout, error: stderr)
+          status = Process.run("cmd.exe", {"/Q", "/C", temp.path}, chdir: dir, output: stdout, error: stderr)
           taken = format_time(Time.monotonic - start)
         ensure
           temp.try &.delete
@@ -118,6 +118,7 @@ module Geode::Commands
         taken = format_time(Time.monotonic - start)
       {% end %}
 
+      puts
       if status.success?
         success "Completed in #{taken}"
       else
