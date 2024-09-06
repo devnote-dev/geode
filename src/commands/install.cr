@@ -48,10 +48,7 @@ module Geode::Commands
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      unless File.exists? "shard.yml"
-        error "A shard.yml file was not found", "Run 'geode init' to initialize one"
-        exit_program
-      end
+      ensure_local_shard!
 
       shards = Process.find_executable "shards"
       unless shards

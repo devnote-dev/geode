@@ -24,14 +24,7 @@ module Geode::Commands
         exit_program
       end
 
-      unless Dir.exists? "bin"
-        begin
-          Dir.mkdir "bin"
-        rescue ex
-          error "Failed to create bin directory:", ex.to_s
-          exit_program
-        end
-      end
+      Dir.mkdir_p "bin"
 
       if targets = arguments.get?("targets").try &.as_set
         targets, unknown = targets.partition { |t| shard.targets.has_key? t }

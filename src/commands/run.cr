@@ -50,28 +50,28 @@ module Geode::Commands
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       shard = Shard.load_local
-      dir = Dir.current
+      dir = Path.new Dir.current
 
       if options.has? "shard"
         name = options.get("shard").as_s
 
         if shard.dependencies.has_key? name
-          if File.exists?(path = Path["lib", name, "shard.yml"])
-            shard = Shard.from_yaml File.read path
-            dir = path.dirname
+          if Shard.exists? name
+            shard = Shard.load name
+            dir = dir / "lib" / name
           else
             error "Shard '#{name}' is listed as a dependency but not installed"
             exit_program
           end
         elsif shard.development.has_key? name
-          if File.exists?(path = Path["lib", name, "shard.yml"])
-            shard = Shard.from_yaml File.read path
-            dir = path.dirname
+          if Shard.exists? name
+            shard = Shard.load name
+            dir = dir / "lib" / name
           else
             error "Shard '#{name}' is listed as a development dependency but not installed"
             exit_program
           end
-        elsif File.exists? Path["lib", name, "shard.yml"]
+        elsif Shard.exists? name
           error "Shard '#{name}' is installed but not listed as a dependency"
           exit_program
         else
@@ -103,7 +103,7 @@ module Geode::Commands
         exit_program
       end
 
-      run_script script, dir
+      run_script script, dir.to_s
     end
 
     private def run_script(script : String, dir : String) : Nil

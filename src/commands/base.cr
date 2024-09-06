@@ -141,6 +141,21 @@ module Geode::Commands
       args[1..].each { |arg| stderr << "»  ".colorize.red << arg << '\n' }
     end
 
+    protected def ensure_local_shard! : Nil
+      unless File.exists? "shard.yml"
+        error "A shard.yml file was not found", "Run 'geode init' to initialize one"
+        exit_program
+      end
+    end
+
+    protected def ensure_local_shard_and_lib! : Nil
+      ensure_local_shard!
+      unless Dir.exists? "lib"
+        error "No shards installed"
+        exit_program
+      end
+    end
+
     protected def format_time(time : Time::Span) : String
       String.build do |io|
         unless time.hours.zero?

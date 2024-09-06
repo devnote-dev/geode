@@ -50,33 +50,40 @@ module Geode
     property scripts : Hash(String, String) = {} of String => String
     property targets : Hash(String, Hash(String, String)) = Hash(String, Hash(String, String)).new
 
-    def self.load_local : self
-      from_yaml File.read "shard.yml"
+    getter dependency_shards : Hash(String, Shard) do
+      @dependencies.keys.map do |name|
+        {name, Shard.load(name)}
+      end.to_h
+    end
+
+    getter development_shards : Hash(String, Shard) do
+      @development.keys.map do |name|
+        {name, Shard.load(name)}
+      end.to_h
+    end
+
+    def self.load(source : String) : self
+      if source.ends_with? ".yml"
+        from_yaml File.read source
+      else
+        from_yaml File.read Path["lib", source, "shard.yml"].expand
+      end
     rescue File::NotFoundError
       raise Error.new :not_found
     rescue ex : YAML::ParseException
       raise Error.new :parse_exception, ex.to_s
     end
 
-    getter dependency_shards : Hash(String, Shard) do
-      @dependencies.keys.map do |name|
-        spec = Shard.from_yaml File.read Path["lib", name, "shard.yml"]
-
-        {name, spec}
-      end.to_h
+    def self.load_local : self
+      load "shard.yml"
     end
 
-    getter development_shards : Hash(String, Shard) do
-      @development.keys.map do |name|
-        spec = Shard.from_yaml File.read Path["lib", name, "shard.yml"]
-
-        {name, spec}
-      end.to_h
-    end
-
-    def name_dependencies : Nil
-      @dependencies.each { |name, dep| dep.name = name }
-      @development.each { |name, dep| dep.name = name }
+    def self.exists?(source : String) : Bool
+      if source.ends_with? ".yml"
+        File.exists? source
+      else
+        File.exists? Path["lib", source, "shard.yml"].expand
+      end
     end
 
     def has_postinstall? : Bool

@@ -10,20 +10,12 @@ module Geode::Commands
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      unless File.exists? "shard.yml"
-        error "A shard.yml file was not found", "Run 'geode init' to initialize one"
-        exit_program
-      end
-
-      unless Dir.exists? "lib"
-        error "No shards installed"
-        exit_program
-      end
+      ensure_local_shard_and_lib!
 
       shard = Shard.load_local
       name = arguments.get("shard").as_s
       unless shard.dependencies.has_key?(name) || shard.development.has_key?(name)
-        if File.exists?(Path["lib"] / name / "shard.yml")
+        if Shard.exists? name
           error "Shard '#{name}' is installed but not listed as a dependency"
         else
           error "Shard '#{name}' not installed"
@@ -31,8 +23,7 @@ module Geode::Commands
         exit_program
       end
 
-      shard = Shard.from_yaml File.read(Path["lib"] / name / "shard.yml")
-
+      shard = Shard.load name
       stdout << "name: ".colorize.bold << shard.name << '\n'
       if description = shard.description
         stdout << description << "\n\n"
@@ -90,9 +81,6 @@ module Geode::Commands
         shard.executables.each { |e| stdout << "• " << e << '\n' }
         stdout << '\n'
       end
-    rescue ex : YAML::ParseException
-      error "Failed to parse shard.yml contents:", ex.to_s
-      exit_program
     end
   end
 end
