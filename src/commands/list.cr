@@ -22,7 +22,7 @@ module Geode::Commands
 
     def setup : Nil
       @name = "list"
-      @summary = "lists installed shards"
+      @summary = "list installed shards"
       @description = <<-DESC
         Lists the shards that have been installed. Due to the nature of the Shards CLI,
         transitive dependencies will also be listed even if they are not directly

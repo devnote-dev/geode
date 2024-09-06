@@ -2,7 +2,7 @@ module Geode::Commands
   class Run < Base
     def setup : Nil
       @name = "run"
-      @summary = "runs a script from shard.yml"
+      @summary = "run a script from shard.yml"
       @description = <<-DESC
         Runs a specified script from a local shard.yml file. You can also run a script
         from an installed shard by specifying the '--shard' flag. If target platforms

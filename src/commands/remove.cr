@@ -2,7 +2,7 @@ module Geode::Commands
   class Remove < Base
     def setup : Nil
       @name = "remove"
-      @summary = "removes one or more dependencies from shard.yml"
+      @summary = "remove one or more dependencies from shard.yml"
 
       add_usage "remove <shards...>"
       add_argument "shards", description: "the names of the shards", multiple: true, required: true

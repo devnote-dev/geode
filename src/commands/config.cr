@@ -2,7 +2,7 @@ module Geode::Commands
   class Config < Base
     def setup : Nil
       @name = "config"
-      @summary = "manages the geode config"
+      @summary = "manage the geode config"
 
       add_usage "config set <key> <value>"
       add_usage "config setup"

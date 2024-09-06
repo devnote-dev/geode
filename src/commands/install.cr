@@ -2,7 +2,7 @@ module Geode::Commands
   class Install < Base
     def setup : Nil
       @name = "install"
-      @summary = "installs dependencies from shard.yml"
+      @summary = "install dependencies from shard.yml"
       @description = <<-DESC
         Installs dependencies from a shard.yml file. This includes development dependencies
         unless you include the '--production' flag.
@@ -18,6 +18,7 @@ module Geode::Commands
       add_option "local"
       add_option "production"
       add_option 'P', "skip-postinstall"
+      # add_option 'S', "shard"
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil

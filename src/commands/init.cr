@@ -5,7 +5,7 @@ module Geode::Commands
 
     def setup : Nil
       @name = "init"
-      @summary = "initializes a shard.yml file"
+      @summary = "initialize a shard.yml file"
       @description = <<-DESC
         Initializes a shard.yml file in the current directory. By default this command is
         interactive, but you can skip it by including the '--skip' flag. The command will

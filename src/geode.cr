@@ -34,7 +34,7 @@ module Geode
 
       add_command Commands::Version.new
       add_command Commands::Init.new
-      add_command Commands::Create.new
+      # add_command Commands::Create.new
       add_command Commands::Install.new
       # add_command Commands::Add.new
       # add_command Commands::Check.new
@@ -56,7 +56,7 @@ module Geode
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-      stdout.puts help_template
+      puts help_template
     end
   end
 end

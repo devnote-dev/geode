@@ -2,7 +2,15 @@ module Geode::Commands
   class Watch < Base
     def setup : Nil
       @name = "watch"
-      @summary = "builds and watches a target from shard.yml"
+      @summary = "build and watch a target from shard.yml"
+      @description = <<-DESC
+        Builds a target from a local shard.yml file. This defaults to the first defined
+        target if none is specified. The 'src' directory will be checked at an interval
+        period (default is 0.5 seconds) which can be changed specifying the '--interval'
+        flag. By default the process output stream for the executed target is not piped
+        to the program output, this can be overriden by specifying the '--pipe' flag.
+        Note that process error stream is always piped to the program output.
+        DESC
 
       add_usage "watch [-c|--check-start] [--dry] [-i|--interval <time>] [-p|--pipe] [-s|--skip-start] [target]"
       add_argument "target", description: "the name of the target"

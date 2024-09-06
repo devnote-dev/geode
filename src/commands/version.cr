@@ -2,7 +2,7 @@ module Geode::Commands
   class Version < Base
     def setup : Nil
       @name = "version"
-      @summary = "gets the version information about Geode"
+      @summary = "get version information about Geode"
       @description = "Gets the version information about Geode."
     end
 

@@ -2,7 +2,7 @@ module Geode::Commands
   class Build < Base
     def setup : Nil
       @name = "build"
-      @summary = "builds one or more targets from shard.yml"
+      @summary = "build one or more targets from shard.yml"
       @description = <<-DESC
         Builds one or more specified targets from a shard.yml file. If no targets are
         specified, all defined targets will be built concurrently. The output of the
