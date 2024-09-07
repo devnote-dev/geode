@@ -5,7 +5,7 @@ module Geode::Commands
       @summary = "install dependencies from shard.yml"
       @description = <<-DESC
         Installs dependencies from a shard.yml file. This includes development dependencies
-        unless you include the '--production' flag.
+        unless you specify the '--production' flag.
         DESC
 
       add_usage "install [-D|--without-development] [-E|--skip-executables] [--frozen]" \
@@ -47,95 +47,33 @@ module Geode::Commands
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       ensure_local_shard!
 
-      shards = Process.find_executable "shards"
-      fatal(
-        "Could not find the Shards executable",
-        "(wrapped around for dependency resolution)",
-      ) unless shards
+      reader, writer = IO.pipe(write_blocking: true)
+      Shards::Log.backend = ::Log::IOBackend.new writer
 
-      args = %w[install --skip-executables --skip-postinstall]
-      args << "--frozen" if options.has? "frozen"
-      args << "--no-color" if options.has? "no-color"
-      if value = options.get?("jobs").try &.as_i
-        args << "--jobs=#{value}"
+      if options.has? "production"
+        Shards.frozen = true
+        Shards.with_development = false
+      else
+        Shards.frozen = options.has? "frozen"
+        Shards.with_development = !options.has?("without-development")
       end
-      args << "--local" if options.has? "local"
-      args << "--production" if options.has? "production"
-      args << "--without-development" if options.has? "without-development"
+
+      Shards.skip_executables = options.has? "skip-executables"
+      Shards.jobs = options.get("jobs").to_i32 if options.has?("jobs")
+      Shards.local = options.has? "local"
+      Shards.skip_postinstall = options.has? "skip-postinstall"
+
+      spawn do
+        while input = reader.gets
+          if input.starts_with? "Fetching"
+            uri = URI.parse input.split(' ')[1]
+            stdout << "• " << uri.path << " (" << uri.hostname << ")\n"
+          end
+        end
+      end
 
       start = Time.monotonic
-      deps = [] of String
-
-      Process.run(shards, args) do |proc|
-        while message = proc.output.gets
-          if message.includes?("Installing") || message.includes?("Using")
-            deps << message.split(' ', 3)[1]
-          end
-          puts message
-        end
-        puts
-      end
-
-      if $?.success?
-        if deps.empty? || (options.has?("skip-executables") && options.has?("skip-postinstall"))
-          success "Install completed in #{format_time(Time.monotonic - start)}"
-          return
-        end
-      else
-        fatal "Install failed (#{format_time(Time.monotonic - start)})"
-      end
-
-      shards = [] of Shard
-      Dir.each_child("lib") do |child|
-        next if child.starts_with? '.'
-        next unless Shard.exists? child
-
-        shards << Shard.load child
-      rescue YAML::ParseException
-        warn "Failed to parse shard.yml contents for '#{child}'"
-      end
-
-      unless options.has? "skip-postinstall"
-        shards.select(&.has_postinstall?).each do |shard|
-          if script = shard.find_target_script "postinstall", Geode::HOST_PLATFORM
-            run_postinstall shard.name, script
-          else
-            warn "No postinstall script available for this platform"
-          end
-        end
-      end
-
-      unless options.has? "skip-executables"
-        Dir.mkdir_p "bin"
-
-        shards.reject(&.executables.empty?).each do |shard|
-          shard.executables.each do |exe|
-            src = Path["lib"] / shard.name / "bin" / exe
-
-            {% if flag?(:win32) %}
-              unless File.exists?(src) || exe.ends_with?(".exe")
-                src = Path[src.basename, exe + ".exe"]
-              end
-            {% end %}
-
-            unless File.exists? src
-              warn "Executable '#{exe}' not found for #{shard.name}"
-              next
-            end
-
-            dest = Path["bin", exe].expand
-            unless File.exists? dest
-              begin
-                File.copy src, dest
-                info "Added executable '#{exe}'"
-              rescue
-                error "Failed to link #{shard.name} executable '#{exe}'"
-              end
-            end
-          end
-        end
-      end
-
+      Shards::Commands::WrapInstall.new(stdout, stderr).run
       success "Install completed in #{format_time(Time.monotonic - start)}"
     end
 

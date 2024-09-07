@@ -17,6 +17,9 @@ dependencies:
     github: devnote-dev/license
     branch: main
 
+  shards:
+    github: crystal-lang/shards
+
   trigram:
     github: devnote-dev/trigram
 

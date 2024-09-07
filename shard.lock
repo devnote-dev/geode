@@ -12,6 +12,14 @@ shards:
     git: https://github.com/devnote-dev/license.git
     version: 0.1.0+git.commit.f95e1c1c95d1ef9d50097b38f4e6bc688629601a
 
+  molinillo:
+    git: https://github.com/crystal-lang/crystal-molinillo.git
+    version: 0.2.0
+
+  shards:
+    git: https://github.com/crystal-lang/shards.git
+    version: 0.18.0
+
   trigram:
     git: https://github.com/devnote-dev/trigram.git
     version: 0.1.0+git.commit.57df0066d2508d9b472be40babd3571b7b5bd772
