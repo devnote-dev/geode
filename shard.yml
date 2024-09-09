@@ -23,6 +23,9 @@ dependencies:
   trigram:
     github: devnote-dev/trigram
 
+  versions:
+    github: devnote-dev/versions
+
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
@@ -32,6 +35,7 @@ scripts:
   clean@windows: del bin\geode.exe bin\geode.pdb
   lint@linux: |
     bin/ameba --all --except Lint/Documentation,Metrics/CyclomaticComplexity
+
   lint@windows: |
     ameba.exe --all --except Lint/Documentation,Metrics/CyclomaticComplexity
 
