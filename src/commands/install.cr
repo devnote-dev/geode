@@ -13,12 +13,12 @@ module Geode::Commands
 
       add_option 'D', "without-development"
       add_option 'E', "skip-executables"
+      add_option 'F', "file", type: :single, default: "shard.yml"
       add_option "frozen"
       add_option 'j', "jobs", type: :single
       add_option "local"
       add_option "production"
       add_option 'P', "skip-postinstall"
-      add_option 'F', "file", type: :single, default: "shard.yml"
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
