@@ -47,33 +47,48 @@ module Geode::Commands
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       ensure_local_shard!
 
-      reader, writer = IO.pipe(write_blocking: true)
-      Shards::Log.backend = ::Log::IOBackend.new writer
+      shard = Shard.load_local
+      start = Time.monotonic
 
-      if options.has? "production"
-        Shards.frozen = true
-        Shards.with_development = false
-      else
-        Shards.frozen = options.has? "frozen"
-        Shards.with_development = !options.has?("without-development")
-      end
+      shard.dependencies.each do |name, dep|
+        dep.validate!
 
-      Shards.skip_executables = options.has? "skip-executables"
-      Shards.jobs = options.get("jobs").to_i32 if options.has?("jobs")
-      Shards.local = options.has? "local"
-      Shards.skip_postinstall = options.has? "skip-postinstall"
+        resolver = Resolvers.get_for_package dep
+        if dep.version
+          resolver.get_versions.reverse_each do |tag|
+            begin
+              resolver.validate tag
+            rescue ex : Resolvers::Base::Error
+              case ex.code
+              when .command_failed?
+                warn(
+                  "No shard.yml file found for '#{name}' on version #{tag}",
+                  "Trying next version"
+                )
+              when .name_mismatch?
+                warn(
+                  "Mismatched names for shard '#{name}' on version #{tag}",
+                  "Trying next version"
+                )
+              end
+              next
+            rescue Shard::Error
+              warn(
+                "Failed to parse shard.yml for '#{name}' on version #{tag}",
+                "Trying next version"
+              )
+              next
+            end
 
-      spawn do
-        while input = reader.gets
-          if input.starts_with? "Fetching"
-            uri = URI.parse input.split(' ')[1]
-            stdout << "• " << uri.path << " (" << uri.hostname << ")\n"
+            begin
+              resolver.install tag, Path[Dir.current, "lib", tag].to_s
+              break
+            rescue ex : Resolvers::Base::Error
+            end
           end
         end
       end
 
-      start = Time.monotonic
-      Shards::Commands::WrapInstall.new(stdout, stderr).run
       success "Install completed in #{format_time(Time.monotonic - start)}"
     end
 
