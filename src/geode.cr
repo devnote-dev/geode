@@ -4,16 +4,16 @@ require "colorize"
 require "file_utils"
 require "license"
 require "lua"
-require "shards/commands/install"
 require "trigram"
+require "uri"
+require "versions"
 require "wait_group"
 require "yaml"
 
 require "./commands/*"
 require "./config"
+require "./resolvers/*"
 require "./shard"
-require "./shards/base"
-require "./shards/install"
 
 Colorize.on_tty_only!
 
