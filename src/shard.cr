@@ -2,15 +2,32 @@ module Geode
   class Dependency
     include YAML::Serializable
 
-    property! name : String
-    property! version : String
-    property! path : String
-    property! git : String
-    property! github : String
-    property! gitlab : String
-    property! bitbucket : String
-    property! hg : String
-    property! fossil : String
+    property name : String { raise "unreachable" }
+    property version : String?
+    property branch : String?
+    property commit : String?
+    property path : String?
+    property git : String?
+    property github : String?
+    property gitlab : String?
+    property bitbucket : String?
+    property hg : String?
+    property fossil : String?
+
+    def validate! : Nil
+      case {@path, @git, @github, @gitlab, @bitbucket, @hg, @fossil}.count(&.itself)
+      when 0
+        raise Shard::Error.new :no_resolver, @name
+      when 1
+        # that's fine
+      else
+        raise Shard::Error.new :dup_resolver, @name
+      end
+
+      if @version && (@branch || @commit)
+        raise Shard::Error.new :version_conflict, @name
+      end
+    end
 
     def to_s(io : IO) : Nil
       io << name
@@ -26,6 +43,9 @@ module Geode
       enum Code
         NotFound
         ParseException
+        NoResolver
+        DupResolver
+        VersionConflict
       end
 
       getter code : Code
@@ -78,6 +98,12 @@ module Geode
       load "shard.yml"
     end
 
+    def self.load_raw(str : String) : self
+      from_yaml str
+    rescue ex : YAML::ParseException
+      raise Error.new :parse_exception, ex.to_s
+    end
+
     def self.exists?(source : String) : Bool
       if source.ends_with? ".yml"
         File.exists? source
@@ -100,6 +126,11 @@ module Geode
       else
         @scripts[name]?
       end
+    end
+
+    def after_initialize : Nil
+      @dependencies.each { |name, dep| dep.name = name }
+      @development.each { |name, dep| dep.name = name }
     end
   end
 end
