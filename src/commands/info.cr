@@ -50,18 +50,18 @@ module Geode::Commands
 
           shard.{{ key.id }}.each do |name, dep|
             stdout << "• " << name
-            if dep.version?
+            if dep.version
               stdout << ": " << dep.version
             end
 
             case dep
-            when .path?       then stdout << " (" << dep.path << ')'
-            when .git?        then stdout << " (" << dep.git << ')'
-            when .github?     then stdout << " (github)"
-            when .gitlab?     then stdout << " (gitlab)"
-            when .bitbucket?  then stdout << " (bitbucket)"
-            when .hg?         then stdout << " (hg)"
-            when .fossil?     then stdout << " (fossil)"
+            when .path       then stdout << " (" << dep.path << ')'
+            when .git        then stdout << " (" << dep.git << ')'
+            when .github     then stdout << " (github)"
+            when .gitlab     then stdout << " (gitlab)"
+            when .bitbucket  then stdout << " (bitbucket)"
+            when .hg         then stdout << " (hg)"
+            when .fossil     then stdout << " (fossil)"
             end
 
             stdout << '\n'

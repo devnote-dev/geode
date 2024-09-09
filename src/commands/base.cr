@@ -41,9 +41,9 @@ module Geode::Commands
         end
       when Geode::Shard::Error
         case ex.code
-        in .not_found?
+        when .not_found?
           error "A shard.yml file was not found", "Run 'geode init' to initialize one"
-        in .parse_exception?
+        when .parse_exception?
           error "Failed to parse shard.yml contents:", ex.message.as(String)
         end
       else
