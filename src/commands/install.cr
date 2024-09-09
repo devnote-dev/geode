@@ -18,7 +18,7 @@ module Geode::Commands
       add_option "local"
       add_option "production"
       add_option 'P', "skip-postinstall"
-      # add_option 'S', "shard"
+      add_option 'F', "file", type: :single, default: "shard.yml"
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -47,7 +47,7 @@ module Geode::Commands
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       ensure_local_shard!
 
-      shard = Shard.load_local
+      shard = Shard.load options.get("file").as_s
       start = Time.monotonic
       info "Resolving dependencies"
 
