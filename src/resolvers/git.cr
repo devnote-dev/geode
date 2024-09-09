@@ -5,7 +5,7 @@ module Geode::Resolvers
     end
 
     def get_versions : Array(String)
-      requirement = Versions.parse dep.version.as(String).lstrip 'v'
+      requirement = Versions.parse @dep.version.as(String).lstrip 'v'
       available = [] of String
 
       execute("git ls-remote --tags #{@uri}").each_line do |line|
@@ -26,8 +26,15 @@ module Geode::Resolvers
     end
 
     def validate(tag : String) : Nil
-      shard = Shard.load_raw execute "git show #{hash}:shard.yml"
-      raise Error.new :name_mismatch unless shard.name == dep.name
+      shard = Shard.load_raw execute "git show #{tag}:shard.yml"
+      raise Error.new :name_mismatch unless shard.name == @dep.name
+    end
+
+    def installed?(tag : String) : Bool
+      return false unless File.exists?(path = Path[Dir.current, "lib", @dep.name, "shard.yml"])
+      shard = Shard.load path.to_s rescue return false
+
+      shard.version == tag
     end
 
     def install(tag : String, dest : String) : Nil

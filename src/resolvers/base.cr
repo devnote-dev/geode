@@ -23,6 +23,7 @@ module Geode::Resolvers
 
     abstract def get_versions : Array(String)
     abstract def validate(tag : String) : Nil
+    abstract def installed?(tag : String) : Bool
     abstract def install(tag : String, dest : String) : Nil
 
     protected def execute(command : String, dir : String = Dir.current) : String
@@ -47,6 +48,7 @@ module Geode::Resolvers
       GitResolver.new uri, dep
     elsif uri = dep.github || dep.gitlab
       GitResolver.new(URI.parse(uri).tap do |u|
+        u.scheme = "https"
         u.host = dep.github ? "github.com" : "gitlab.com"
       end.to_s, dep)
     elsif uri = dep.bitbucket

@@ -8,6 +8,10 @@ module Geode::Resolvers
       raise "not implemented"
     end
 
+    def installed?(tag : String) : Bool
+      raise "not implmeneted"
+    end
+
     def install(tag : String, dest : String) : Nil
       raise "not implemented"
     end
