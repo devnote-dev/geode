@@ -49,11 +49,26 @@ module Geode::Commands
 
       shard = Shard.load_local
       start = Time.monotonic
+      info "Resolving dependencies"
 
       shard.dependencies.each do |name, dep|
-        dep.validate!
+        begin
+          dep.validate!
+        rescue ex : Shard::Error
+          case ex.code
+          when .no_resolver?
+            error "No source set for '#{name}'; cannot install"
+          when .dup_resolver?
+            error "Multiple sources set for '#{name}'", "Pick one and try again"
+          when .version_conflict?
+            error "Cannot specify version with branch or commit for '#{name}'"
+          end
+          next
+        end
 
         resolver = Resolvers.get_for_package dep
+        stdout << "• " << resolver.uri << '\n'
+
         if dep.version
           resolver.get_versions.reverse_each do |tag|
             begin
@@ -80,10 +95,16 @@ module Geode::Commands
               next
             end
 
-            begin
-              resolver.install tag, Path[Dir.current, "lib", tag].to_s
+            if resolver.installed? tag
+              info "Using #{name} (#{tag})"
               break
-            rescue ex : Resolvers::Base::Error
+            else
+              begin
+                resolver.install tag, Path[Dir.current, "lib", tag].to_s
+                break
+              rescue ex : Resolvers::Base::Error
+                # TODO
+              end
             end
           end
         end
