@@ -39,11 +39,13 @@ module Geode::Commands
       end
 
       wg = WaitGroup.new
+      status = 0
 
       targets.each do |name|
         target = shard.targets[name]
         unless target.has_key? "main"
           error "Target '#{name}' missing field 'main'; skipping"
+          status = 1
           next
         end
 
@@ -51,15 +53,17 @@ module Geode::Commands
 
         wg.add
         spawn do
-          build name, target["main"], target["flags"]?, dry, pipe
+          status = build name, target["main"], target["flags"]?, dry, pipe
           wg.done
         end
       end
 
       wg.wait
+
+      exit_program status
     end
 
-    private def build(name : String, main : String, flags : String?, dry : Bool, pipe : Bool) : Nil
+    private def build(name : String, main : String, flags : String?, dry : Bool, pipe : Bool) : Int32
       command = ["build", "-o", (Path["bin"] / name).to_s, main]
       command << "--no-codegen" if dry
       command.concat flags.split if flags
@@ -81,6 +85,8 @@ module Geode::Commands
         end
         error "Target '#{name}' failed (#{taken})"
       end
+
+      status.exit_code
     end
   end
 end
