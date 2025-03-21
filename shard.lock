@@ -1,12 +1,8 @@
 version: 2.0
 shards:
-  ameba:
-    git: https://github.com/crystal-ameba/ameba.git
-    version: 1.6.1
-
   cling:
     git: https://github.com/devnote-dev/cling.git
-    version: 3.0.0+git.commit.87d2184e0223cd647de86b6f4247bb42795bfaf2
+    version: 3.0.0+git.commit.3cd8b0baebb4b887b48a374f7e3f0887699fa4e5
 
   license:
     git: https://github.com/devnote-dev/license.git
@@ -18,7 +14,7 @@ shards:
 
   shards:
     git: https://github.com/crystal-lang/shards.git
-    version: 0.18.0
+    version: 0.19.1
 
   trigram:
     git: https://github.com/devnote-dev/trigram.git
