@@ -65,11 +65,11 @@ module Shards::Commands
 
     private def install(package : Package)
       if package.installed?
-        info "Using #{package.name} (#{package.report_version})"
+        @stdout << "= ".colorize.blue << package.name << " (" << package.report_version << ")\n"
         return
       end
 
-      info "Installing #{package.name} (#{package.report_version})"
+      @stdout << "+ ".colorize.green << package.name << " (" << package.report_version << ")\n"
       package.install
       package
     end

@@ -51,7 +51,7 @@ module Geode::Commands
       found.each do |name, licenses|
         stdout << name << ":\n"
         if licenses.empty?
-          stdout << "• none found"
+          stdout << "• none found\n"
         else
           licenses.each do |license|
             stdout << "• " << license.title << '\n'

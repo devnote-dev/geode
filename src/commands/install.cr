@@ -65,15 +65,16 @@ module Geode::Commands
 
       spawn do
         while input = reader.gets
-          if input.starts_with? "Fetching"
-            uri = URI.parse input.split(' ')[1]
-            stdout << "• " << uri.path << " (" << uri.hostname << ")\n"
+          if input.includes? "Fetching"
+            stdout << "• " << input.split("Fetching ")[1] << '\n'
           end
         end
       end
 
       start = Time.monotonic
       Shards::Commands::WrapInstall.new(stdout, stderr).run
+      Fiber.yield
+
       success "Install completed in #{format_time(Time.monotonic - start)}"
     end
 
