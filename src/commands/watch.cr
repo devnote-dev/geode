@@ -31,7 +31,7 @@ module Geode::Commands
       fatal "Missing 'main' field for target: #{name}" unless target.has_key? "main"
 
       begin
-        interval = options.get("interval").to_f64
+        interval = options.get("interval").to_f64.seconds
       rescue
         fatal "Could not parse interval (must be a number)"
       end
