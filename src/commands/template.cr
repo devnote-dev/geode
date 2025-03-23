@@ -7,7 +7,7 @@ module Geode::Commands
       add_command Add.new
       add_command Info.new
       # add_command Create.new
-      # add_command Test.new
+      add_command Test.new
       add_command Remove.new
     end
 
@@ -80,11 +80,7 @@ module Geode::Commands
           exit_program if missing
         end
 
-        script = File.read source / "control.lua"
-        runner = Lua::Runner.new script, File.open File::NULL
-        runner.load_checks_env
-        runner.run # TODO: check if scripts are used
-
+        template.test_script stdout
         template.install source
       end
     end
@@ -117,6 +113,25 @@ module Geode::Commands
           stdout << '\n'
           template.files.join(stdout) { |e, i| i << "• " << e << '\n' }
         end
+      end
+    end
+
+    class Test < Base
+      def setup : Nil
+        @name = "test"
+
+        add_argument "name", required: true
+      end
+
+      def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+        name = arguments.get("name").as_s
+        unless Geode::Template.exists?(name)
+          error "Template '#{name}' does not exist"
+          exit_program
+        end
+
+        template = Geode::Template.load name
+        template.run_script stdout
       end
     end
 
