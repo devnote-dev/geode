@@ -38,6 +38,13 @@ module Geode
       end
     end
 
+    def self.remove(name : String) : Bool
+      return false unless exists? name
+
+      FileUtils.rm_rf Config::TEMPLATES / name
+      true
+    end
+
     def initialize(@name, @summary, @author, @source, @version, @files)
     end
 

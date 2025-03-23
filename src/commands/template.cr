@@ -5,10 +5,10 @@ module Geode::Commands
 
       add_command List.new
       add_command Add.new
-      # add_command Info.new
+      add_command Info.new
       # add_command Create.new
       # add_command Test.new
-      # add_command Remove.new
+      add_command Remove.new
     end
 
     def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -86,6 +86,56 @@ module Geode::Commands
         runner.run # TODO: check if scripts are used
 
         template.install source
+      end
+    end
+
+    class Info < Base
+      def setup : Nil
+        @name = "info"
+
+        add_argument "name", required: true
+      end
+
+      def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+        name = arguments.get("name").as_s
+        unless Geode::Template.exists?(name)
+          error "Template '#{name}' does not exist"
+          exit_program
+        end
+
+        template = Geode::Template.load name
+        stdout << "name: ".colorize.bold << template.name << '\n'
+        stdout << "summary: ".colorize.bold << template.summary << "\n\n"
+        stdout << "author: ".colorize.bold << template.author << '\n'
+        stdout << "version: ".colorize.bold << template.version << '\n'
+        stdout << "source: ".colorize.bold << (template.source || "(unknown)".colorize.light_gray) << '\n'
+        stdout << "files:".colorize.bold
+
+        if template.files.empty?
+          stdout << " none\n"
+        else
+          stdout << '\n'
+          template.files.join(stdout) { |e, i| i << "• " << e << '\n' }
+        end
+      end
+    end
+
+    class Remove < Base
+      def setup : Nil
+        @name = "remove"
+
+        add_argument "name", required: true
+      end
+
+      def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+        name = arguments.get("name").as_s
+
+        if Geode::Template.remove name
+          success "Removed template '#{name}'"
+        else
+          error "Template '#{name}' does not exist"
+          exit_program
+        end
       end
     end
 
