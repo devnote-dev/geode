@@ -60,11 +60,14 @@ module Geode
 
     def run_script(output : IO) : Nil
       script = File.read Config::TEMPLATES / name / "control.lua"
-      runner = Runner.new script, output
-      runner.load_standard_functions
+      runner = Geode::Runner.new script, output
+      runner.run_normal_env
     end
 
     def test_script(output : IO) : Nil
+      script = File.read Config::TEMPLATES / name / "control.lua"
+      runner = Geode::Runner.new script, output
+      runner.run_test_env
     end
   end
 end
