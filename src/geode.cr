@@ -1,9 +1,9 @@
 require "cling"
 require "cling/ext"
 require "colorize"
+require "crystal-lua"
 require "file_utils"
 require "license"
-require "lua"
 require "shards/commands/install"
 require "trigram"
 require "wait_group"
@@ -14,6 +14,7 @@ require "./config"
 require "./shard"
 require "./shards/base"
 require "./shards/install"
+require "./template/*"
 
 Colorize.on_tty_only!
 
@@ -52,9 +53,7 @@ module Geode
       add_command Commands::Licenses.new
       add_command Commands::Run.new
       add_command Commands::Config.new
-      {% if flag?(:templates) %}
-        add_command Commands::Template.new
-      {% end %}
+      add_command Commands::Template.new
       add_command Commands::Help.new
     end
 
