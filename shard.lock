@@ -4,6 +4,10 @@ shards:
     git: https://github.com/devnote-dev/cling.git
     version: 3.0.0+git.commit.3cd8b0baebb4b887b48a374f7e3f0887699fa4e5
 
+  crystal-lua:
+    git: https://github.com/devnote-dev/crystal-lua.git
+    version: 0.1.0+git.commit.03b219810dd39e5da4cf1d4ea4cfcea05b7abdab
+
   license:
     git: https://github.com/devnote-dev/license.git
     version: 0.1.0+git.commit.f95e1c1c95d1ef9d50097b38f4e6bc688629601a

@@ -17,6 +17,10 @@ dependencies:
     github: devnote-dev/license
     branch: main
 
+  crystal-lua:
+    github: devnote-dev/crystal-lua
+    branch: main
+
   shards:
     github: crystal-lang/shards
 
