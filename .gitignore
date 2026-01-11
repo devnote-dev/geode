@@ -1,7 +1,8 @@
 /docs/
 /lib/
-/bin/
 /test/
 /.shards/
 /.vscode/
 *.dwarf
+
+!/bin/ameba.cr
