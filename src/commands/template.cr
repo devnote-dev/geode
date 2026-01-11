@@ -1,3 +1,5 @@
+{% skip_file %}
+
 module Geode::Commands
   class Template < Base
     def setup : Nil

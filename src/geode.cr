@@ -14,7 +14,7 @@ require "./config"
 require "./shard"
 require "./shards/base"
 require "./shards/install"
-require "./template/*"
+# require "./template/*"
 
 Colorize.on_tty_only!
 
@@ -53,7 +53,7 @@ module Geode
       add_command Commands::Licenses.new
       add_command Commands::Run.new
       add_command Commands::Config.new
-      add_command Commands::Template.new
+      # add_command Commands::Template.new
       add_command Commands::Help.new
     end
 
