@@ -8,20 +8,22 @@ module Geode::Commands
         unless you specify the '--production' flag.
         DESC
 
-      add_usage "install [-D|--without-development] [-E|--skip-executables] [--frozen]" \
-                "\n\t[-j|--jobs <n>] [--local] [--production] [-P|--skip-postinstall]"
+      add_usage "install [-D|--without-development] [-E|--skip-executables] [-F|--frozen]" \
+                "\n\t[-j|--jobs <n>] [--local] [--production] [-P|--skip-postinstall] [-s|--spec <file>]"
 
       add_option 'D', "without-development"
       add_option 'E', "skip-executables"
-      add_option "frozen"
+      add_option 'F', "frozen"
       add_option 'j', "jobs", type: :single
       add_option "local"
       add_option "production"
       add_option 'P', "skip-postinstall"
-      # add_option 'S', "shard"
+      add_option 's', "spec", type: :single
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+      super
+
       if options.has? "jobs"
         unless options.get("jobs").to_i32?
           fatal "Expected flag 'jobs' to be an integer, not a string"
@@ -66,7 +68,7 @@ module Geode::Commands
       spawn do
         while input = reader.gets
           if input.includes? "Fetching"
-            stdout << "• " << input.split("Fetching ")[1] << '\n'
+            stdout << "• " << input.split("Fetching ")[1].split(' ')[0] << '\n'
           end
         end
       end
