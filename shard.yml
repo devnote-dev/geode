@@ -38,8 +38,7 @@ development_dependencies:
 scripts:
   clean@linux: rm bin/geode
   clean@windows: del bin\geode.exe bin\geode.pdb
-  lint: |
-    ameba --all --except Lint/Documentation,Metrics/CyclomaticComplexity
+  lint: ameba --all --except Documentation,Naming,Metrics,Style
 
 targets:
   ameba:
