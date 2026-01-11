@@ -1,8 +1,12 @@
 version: 2.0
 shards:
+  ameba:
+    git: https://github.com/crystal-ameba/ameba.git
+    version: 1.6.4
+
   cling:
     git: https://github.com/devnote-dev/cling.git
-    version: 3.0.0+git.commit.3cd8b0baebb4b887b48a374f7e3f0887699fa4e5
+    version: 3.1.0+git.commit.e23db4aa04ce4727a1e3f699088c114a1930c3e7
 
   crystal-lua:
     git: https://github.com/devnote-dev/crystal-lua.git
@@ -18,7 +22,11 @@ shards:
 
   shards:
     git: https://github.com/crystal-lang/shards.git
-    version: 0.19.1
+    version: 0.20.0
+
+  strict-yaml:
+    git: https://github.com/devnote-dev/strict-yaml.git
+    version: 0.1.0+git.commit.e209aaed4b49f3b935556ae7f11f0147fb0b5787
 
   trigram:
     git: https://github.com/devnote-dev/trigram.git

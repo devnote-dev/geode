@@ -13,19 +13,27 @@ dependencies:
     github: devnote-dev/cling
     branch: main
 
-  license:
-    github: devnote-dev/license
-    branch: main
-
   crystal-lua:
     github: devnote-dev/crystal-lua
+    branch: main
+
+  license:
+    github: devnote-dev/license
     branch: main
 
   shards:
     github: crystal-lang/shards
 
+  strict-yaml:
+    github: devnote-dev/strict-yaml
+    branch: main
+
   trigram:
     github: devnote-dev/trigram
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
 
 scripts:
   clean@linux: rm bin/geode
@@ -34,6 +42,10 @@ scripts:
     ameba --all --except Lint/Documentation,Metrics/CyclomaticComplexity
 
 targets:
+  ameba:
+    main: bin/ameba.cr
+    flags: -Dpreview_mt
+
   geode:
     main: src/main.cr
     flags: --progress
