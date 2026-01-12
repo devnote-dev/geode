@@ -3,9 +3,11 @@ module Geode::Commands
     def initialize
       super
 
+      @debug = false
       @inherit_options = true
       add_option "no-color", description: "disable ansi color formatting"
       add_option 'h', "help", description: "get help information"
+      add_option "debug", hidden: true
     end
 
     def help_template : String
@@ -13,6 +15,7 @@ module Geode::Commands
     end
 
     def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+      @debug = options.has? "debug"
       Colorize.enabled = false if options.has? "no-color"
       return unless options.has? "help"
 
@@ -53,6 +56,11 @@ module Geode::Commands
           "Please report this on the Geode GitHub issues:",
           "https://github.com/devnote-dev/geode/issues"
         )
+      end
+
+      if @debug
+        info "Debug backtrace:"
+        (ex.backtrace || %w[???]).each { |line| stdout << "  " << line << '\n' }
       end
     end
 

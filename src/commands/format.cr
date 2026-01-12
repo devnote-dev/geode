@@ -52,6 +52,7 @@ module Geode::Commands
       max_size = 6 + command.options.keys.max_of &.size
 
       command.options.each do |name, option|
+        next if option.hidden?
         name_size = 2 + option.long.size
 
         str << "»  "
