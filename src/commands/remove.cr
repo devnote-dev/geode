@@ -25,9 +25,17 @@ module Geode::Commands
           warn "Shard '#{name}' is not installed but listed as a dependency"
         end
 
-        if shard.dependencies.delete(name) || shard.development.delete(name)
-          # TODO: this should really update shard.yml but the YAML module does it really badly
-          # This may require a custom shard.yml file parser
+        key = if shard.dependencies.delete(name)
+                "dependencies"
+              elsif shard.development.delete(name)
+                "development_dependencies"
+              end
+
+        if key
+          doc = StrictYAML.parse_document File.read("./shard.yml"), preserve: true
+          doc.edit &.remove [key, shard.name]
+          File.write "./shard.yml", doc
+
           success "Removed shard '#{name}'"
           removed = true
         elsif untracked
